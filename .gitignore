@@ -1,0 +1,50 @@
+# Poetry Recommender
+
+# Byte-compiled
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+
+# Test / Coverage
+htmlcov/
+.coverage
+.pytest_cache/
+*.cover
+
+# Distribution
+dist/
+build/
+*.egg-info/
+
+# Temp files
+*.log
+_create_repo.py
+read_pdfs.py
+assignments_output.txt
+Assignment*.pdf
+
+# Agent config
+.agent/
+.gemini/
