@@ -54,5 +54,16 @@ class APIClient:
     async def get_due_reviews(self, telegram_id: int):
         return await self._request("GET", f"/api/v1/memorization/due/{telegram_id}")
 
+    async def check_voice(self, telegram_id: int, poem_id: str, audio_bytes: bytes):
+        """Upload voice audio and get memorization evaluation."""
+        async with httpx.AsyncClient(base_url=self.base_url, timeout=60.0) as client:
+            resp = await client.post(
+                f"/api/v1/memorization/check-voice/{telegram_id}/{poem_id}",
+                files={"audio": ("voice.ogg", audio_bytes, "audio/ogg")},
+            )
+            resp.raise_for_status()
+            return resp.json()
+
 
 api = APIClient()
+

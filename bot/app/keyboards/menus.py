@@ -18,10 +18,13 @@ def poem_action_keyboard(poem_id: str) -> InlineKeyboardMarkup:
     """Action buttons after a poem is shown."""
     return InlineKeyboardMarkup(inline_keyboard=[
         [
+            InlineKeyboardButton(text="🎤 Recite", callback_data=f"recite_{poem_id}"),
             InlineKeyboardButton(text="📝 Learn this", callback_data=f"learn_{poem_id}"),
-            InlineKeyboardButton(text="⏭️ Skip", callback_data="skip"),
         ],
-        [InlineKeyboardButton(text="📊 My Progress", callback_data="progress")],
+        [
+            InlineKeyboardButton(text="⏭️ Skip", callback_data="skip"),
+            InlineKeyboardButton(text="📊 My Progress", callback_data="progress"),
+        ],
     ])
 
 
@@ -37,6 +40,21 @@ def review_score_keyboard(poem_id: str) -> InlineKeyboardMarkup:
             InlineKeyboardButton(text="3 🤔 OK", callback_data=f"score_{poem_id}_3"),
             InlineKeyboardButton(text="4 😊 Good", callback_data=f"score_{poem_id}_4"),
             InlineKeyboardButton(text="5 🌟 Perfect", callback_data=f"score_{poem_id}_5"),
+        ],
+        [InlineKeyboardButton(text="🎤 Recite instead", callback_data=f"recite_{poem_id}")],
+    ])
+
+
+def voice_feedback_keyboard(poem_id: str) -> InlineKeyboardMarkup:
+    """Buttons shown after voice evaluation."""
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [
+            InlineKeyboardButton(text="🔄 Try again", callback_data=f"retry_recite_{poem_id}"),
+            InlineKeyboardButton(text="📖 Read poem", callback_data=f"show_poem_{poem_id}"),
+        ],
+        [
+            InlineKeyboardButton(text="➡️ Next poem", callback_data="recommend"),
+            InlineKeyboardButton(text="📊 Progress", callback_data="progress"),
         ],
     ])
 

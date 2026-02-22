@@ -3,17 +3,20 @@
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models.user import User
 from app.models.memorization import Memorization
+from app.models.poem import Poem
 from app.schemas.memorization import MemorizationResponse, ReviewRequest
 from app.schemas.poem import PoemResponse
+from app.schemas.voice import VoiceCheckResponse
 from app.services.spaced_rep import calculate_sm2
 from app.services.recommender import get_poems_due_for_review, recommend_new_poem
+from app.services import voice_evaluator
 
 router = APIRouter(prefix="/memorization", tags=["memorization"])
 
@@ -113,6 +116,78 @@ async def get_due_reviews(telegram_id: int, db: AsyncSession = Depends(get_db)):
     user = await _get_user(telegram_id, db)
     due = await get_poems_due_for_review(db, user.id)
     return due
+
+
+@router.post("/check-voice/{telegram_id}/{poem_id}", response_model=VoiceCheckResponse)
+async def check_voice(
+    telegram_id: int,
+    poem_id: uuid.UUID,
+    audio: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+):
+    """Accept a voice message, transcribe, compare with poem, and update SM-2."""
+    user = await _get_user(telegram_id, db)
+
+    # Load poem
+    poem_query = select(Poem).where(Poem.id == poem_id)
+    poem_result = await db.execute(poem_query)
+    poem = poem_result.scalar_one_or_none()
+    if not poem:
+        raise HTTPException(status_code=404, detail="Poem not found")
+
+    # Get or create memorization record
+    mem_query = select(Memorization).where(
+        Memorization.user_id == user.id, Memorization.poem_id == poem_id
+    )
+    mem_result = await db.execute(mem_query)
+    mem = mem_result.scalar_one_or_none()
+    if not mem:
+        mem = Memorization(user_id=user.id, poem_id=poem.id, status="new")
+        db.add(mem)
+        await db.flush()
+
+    # Evaluate voice
+    audio_bytes = await audio.read()
+    evaluation = await voice_evaluator.evaluate(audio_bytes, poem.text, poem.language)
+
+    # Update SM-2
+    sm2 = calculate_sm2(
+        quality=evaluation.sm2_score,
+        repetitions=mem.repetitions,
+        ease_factor=mem.ease_factor,
+        interval_days=mem.interval_days,
+    )
+
+    mem.ease_factor = sm2.ease_factor
+    mem.interval_days = sm2.interval_days
+    mem.repetitions = sm2.repetitions
+    mem.next_review_at = sm2.next_review_at
+    mem.last_reviewed_at = datetime.now(timezone.utc)
+    mem.status = sm2.status
+
+    # Append to score history
+    history = mem.score_history or []
+    history.append({
+        "date": datetime.now(timezone.utc).isoformat(),
+        "score": evaluation.sm2_score,
+        "accuracy_percent": evaluation.accuracy_percent,
+        "method": "voice",
+    })
+    mem.score_history = history
+
+    await db.commit()
+    await db.refresh(mem)
+
+    return VoiceCheckResponse(
+        transcribed_text=evaluation.transcribed_text,
+        accuracy_percent=evaluation.accuracy_percent,
+        sm2_score=evaluation.sm2_score,
+        missed_lines=evaluation.missed_lines,
+        feedback=evaluation.feedback,
+        next_steps=evaluation.next_steps,
+        status=mem.status,
+        interval_days=mem.interval_days,
+    )
 
 
 async def _get_user(telegram_id: int, db: AsyncSession) -> User:

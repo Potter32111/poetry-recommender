@@ -13,10 +13,12 @@ The goal of this project is to help users **discover, learn, and memorize classi
 ### Key Features
 - 📖 Recommend poems based on language preference
 - 🧠 SM-2 spaced repetition for memorization tracking
+- 🎤 **Voice recitation check** — recite a poem, get automatic accuracy scoring
 - 🔄 Daily review reminders for poems due
 - 📊 Progress dashboard (new / learning / reviewing / memorized)
-- 🎯 Score-based recall rating (0–5)
+- 🎯 Score-based recall rating (0–5) or automatic voice evaluation
 - 🇬🇧🇷🇺 Classic poems in English and Russian
+- 🔇 Fully offline STT (Vosk) — no external API keys needed
 
 ## Usage
 
@@ -43,6 +45,7 @@ Base URL: `http://localhost:8000/api/v1`
 | GET | `/poems/{id}` | Get poem details |
 | POST | `/memorization/recommend/{telegram_id}` | Get recommendation |
 | POST | `/memorization/review/{telegram_id}/{poem_id}` | Submit review score |
+| POST | `/memorization/check-voice/{telegram_id}/{poem_id}` | Voice recitation check |
 | GET | `/memorization/progress/{telegram_id}` | Get stats |
 | GET | `/memorization/due/{telegram_id}` | Get due reviews |
 
@@ -113,6 +116,8 @@ docker-compose down -v     # Stop and remove data
 | Database | PostgreSQL 16 |
 | Containerization | Docker + Docker Compose |
 | Memorization | SM-2 Spaced Repetition |
+| Speech-to-Text | Vosk (offline, ~85MB models) |
+| Audio Processing | ffmpeg |
 
 ### Static View
 
@@ -120,13 +125,14 @@ docker-compose down -v     # Stop and remove data
 ┌─────────────────┐     HTTP      ┌─────────────────┐     SQL       ┌───────────┐
 │  Telegram Bot    │──────────────▶│  FastAPI Backend │──────────────▶│ PostgreSQL│
 │  (aiogram 3.x)  │◀──────────────│  /api/v1/*       │◀──────────────│           │
-└─────────────────┘               └─────────────────┘               └───────────┘
+│  + FSM (voice)  │               │  + Vosk STT      │               └───────────┘
+└─────────────────┘               └─────────────────┘
         │                                │
-        │ Telegram API                   │ (optional)
+        │ Telegram API                   │ (in-process, offline)
         ▼                                ▼
    ┌──────────┐                   ┌──────────────┐
-   │ Telegram  │                   │ Google Gemini│
-   │ Bot API   │                   │ API          │
+   │ Telegram  │                   │ Vosk Models  │
+   │ Bot API   │                   │ (RU + EN)    │
    └──────────┘                   └──────────────┘
 ```
 
