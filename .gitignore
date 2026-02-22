@@ -48,3 +48,7 @@ Assignment*.pdf
 # Agent config
 .agent/
 .gemini/
+
+# Models
+models_vosk/
+download_models.py
