@@ -26,9 +26,18 @@ async def main() -> None:
     dp.include_router(voice_router)
     dp.include_router(start_router)
 
-    logger.info("Starting Poetry Recommender Bot...")
-    await dp.start_polling(bot)
+    from apscheduler.schedulers.asyncio import AsyncIOScheduler
+    from app.scheduler import process_daily_notifications
 
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(process_daily_notifications, "cron", hour=10, minute=0, args=[bot], id="daily_notifications")
+    scheduler.start()
+
+    logger.info("Starting Poetry Recommender Bot with APScheduler...")
+    try:
+        await dp.start_polling(bot)
+    finally:
+        scheduler.shutdown()
 
 if __name__ == "__main__":
     asyncio.run(main())

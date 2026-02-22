@@ -136,14 +136,15 @@ class PoemParser:
         logger.info(f"Initiating real-time Yandex search for query: '{query}'")
         
         import os
-        API_KEY = os.getenv('YANDEX_SEARCH_API_KEY')
-        FOLDER_ID = os.getenv('YANDEX_FOLDER_ID')
-        if not API_KEY:
-            logger.error('Yandex API_KEY missing')
+        API_KEY = os.getenv("YANDEX_SEARCH_API_KEY")
+        FOLDER_ID = os.getenv("YANDEX_FOLDER_ID")
+        
+        if not API_KEY or not FOLDER_ID:
+            logger.error('Yandex API_KEY or FOLDER_ID missing in env vars')
             return []
         
         # Enrich the query with poetic variations
-        ru_modifiers = ["Ð³Ð»ÑƒÐ±Ð¾ÐºÐ¸Ð¹ ÑÐ¼Ñ‹ÑÐ»", "Ð¼ÐµÑ‚Ð°Ñ„Ð¾Ñ€Ð°", "Ñ„Ð¸Ð»Ð¾ÑÐ¾Ñ„Ð¸Ñ", "Ð´ÑƒÑˆÐ°", "Ð²Ð´Ð¾Ñ…Ð½Ð¾Ð²ÐµÐ½Ð¸Ðµ", "Ð»Ð¸Ñ€Ð¸ÐºÐ°", "ÐºÑ€Ð°ÑÐ¸Ð²Ð¾"]
+        ru_modifiers = ["глубокий смысл", "метафора", "философия", "душа", "вдохновение", "лирика", "красиво"]
         en_modifiers = ["deep meaning", "metaphor", "philosophy", "soul", "inspiration", "lyrical", "beautiful"]
         
         is_ru = any('\u0400' <= c <= '\u04FF' for c in query)

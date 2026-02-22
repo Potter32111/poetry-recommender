@@ -23,6 +23,8 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://poetry:${DB_PASSWORD:-poetry_secret_123}@db:5432/poetry_bot
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      YANDEX_SEARCH_API_KEY: ${YANDEX_SEARCH_API_KEY:-}
+      YANDEX_FOLDER_ID: ${YANDEX_FOLDER_ID:-}
     ports:
       - "8000:8000"
     volumes:

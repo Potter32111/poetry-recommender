@@ -66,6 +66,10 @@ class APIClient:
 
     async def get_due_reviews(self, telegram_id: int):
         return await self._request("GET", f"/api/v1/memorization/due/{telegram_id}")
+        
+    async def get_all_due_reviews(self):
+        """Fetch all telegram_ids that have poems due for review."""
+        return await self._request("GET", "/api/v1/memorization/due/all")
 
     async def check_voice(self, telegram_id: int, poem_id: str, audio_bytes: bytes):
         """Upload voice audio and get memorization evaluation."""

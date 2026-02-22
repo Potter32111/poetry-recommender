@@ -18,6 +18,31 @@ from app.services.spaced_rep import calculate_sm2
 from app.services.recommender import get_poems_due_for_review, recommend_new_poem
 from app.services import voice_evaluator
 
+def _update_user_gamification(user: User, xp_gain: int):
+    """Update user XP, level, and streak based on activity."""
+    # 1. Update XP and Level
+    user.xp += xp_gain
+    
+    # Calculate next level threshold: next_level_xp = current_level * 100
+    # Allow multiple level ups if XP gain is huge
+    while user.xp >= (user.level * 100):
+        user.xp -= (user.level * 100)
+        user.level += 1
+        
+    # 2. Update Streak
+    today = datetime.now(timezone.utc).date()
+    if user.last_activity_date:
+        delta_days = (today - user.last_activity_date).days
+        if delta_days == 1:
+            user.streak += 1 # Continue streak
+        elif delta_days > 1:
+            user.streak = 1 # Reset streak
+        # If delta_days == 0, leave streak as is (already active today)
+    else:
+        user.streak = 1 # First activity ever
+        
+    user.last_activity_date = today
+
 router = APIRouter(prefix="/memorization", tags=["memorization"])
 
 
@@ -85,6 +110,9 @@ async def review_poem(
     history.append({"date": datetime.now(timezone.utc).isoformat(), "score": data.score})
     mem.score_history = history
 
+    # Update Gamification (+15 XP for a review)
+    _update_user_gamification(user, 15)
+
     await db.commit()
     await db.refresh(mem)
     return mem
@@ -108,6 +136,37 @@ async def get_progress(telegram_id: int, db: AsyncSession = Depends(get_db)):
     stats["due_for_review"] = due_count
 
     return stats
+
+
+@router.get("/due/all", tags=["scheduler"])
+async def get_all_due_reviews(db: AsyncSession = Depends(get_db)):
+    """Get telegram_ids of all users who have poems due for review right now. (For Scheduler)"""
+    now = datetime.now(timezone.utc)
+    # Select distinct user_ids where next_review_at <= now
+    query = (
+        select(Memorization.user_id)
+        .where(Memorization.next_review_at <= now)
+        .distinct()
+    )
+    result = await db.execute(query)
+    due_user_ids = result.scalars().all()
+
+    if not due_user_ids:
+        return []
+
+    # Get their telegram_ids
+    user_query = select(User.telegram_id, User.ui_language, User.notification_time).where(User.id.in_(due_user_ids))
+    user_result = await db.execute(user_query)
+    
+    users_with_due = [
+        {
+            "telegram_id": row.telegram_id,
+            "ui_language": row.ui_language,
+            "notification_time": row.notification_time
+        }
+        for row in user_result
+    ]
+    return users_with_due
 
 
 @router.get("/due/{telegram_id}", response_model=list[MemorizationResponse])
@@ -174,6 +233,9 @@ async def check_voice(
         "method": "voice",
     })
     mem.score_history = history
+
+    # Update Gamification (+30 XP for a voice check)
+    _update_user_gamification(user, 30)
 
     await db.commit()
     await db.refresh(mem)

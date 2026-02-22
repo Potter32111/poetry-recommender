@@ -9,11 +9,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 
 from app.services.api_client import api
-from app.keyboards.menus import (
-    voice_feedback_keyboard,
-    main_menu_keyboard,
-    poem_action_keyboard,
-)
+from app.translations import t
+from app.keyboards.menus import poem_action_keyboard
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -33,17 +30,20 @@ async def cb_recite(callback: CallbackQuery, state: FSMContext) -> None:
         return
 
     poem_id = callback.data.replace("recite_", "")
-    await state.set_state(ReciteStates.waiting_voice)
-    await state.update_data(poem_id=poem_id)
-
+    lang = await get_user_lang(callback.from_user.id)
     await callback.message.answer(
-        "🎤 **Запишите голосовое сообщение**, прочитав стих наизусть.\n\n"
-        "Нажмите и удерживайте кнопку микрофона 🎙️, "
-        "прочитайте стих, затем отпустите.\n\n"
-        "_Я оценю, насколько точно вы запомнили текст._",
+        t("msg_recite_prompt", lang),
         parse_mode="Markdown",
     )
     await callback.answer()
+
+async def get_user_lang(telegram_id: int) -> str:
+    from app.services.api_client import api
+    try:
+        user = await api.get_user(telegram_id)
+        return user.get("ui_language", "ru")
+    except Exception:
+        return "ru"
 
 
 # ─── Handler: Receive voice message ─────────────────────────
@@ -71,11 +71,25 @@ async def handle_voice(message: Message, state: FSMContext, bot: Bot) -> None:
         await bot.download_file(voice_file.file_path, voice_bytes)
         audio_data = voice_bytes.getvalue()
 
-        # Send to backend for evaluation
+        # Check gamification status before and after
+        user_before = await api.get_user(message.from_user.id)
+        level_before = user_before.get("level", 1)
+
         result = await api.check_voice(message.from_user.id, poem_id, audio_data)
+        
+        user_after = await api.get_user(message.from_user.id)
+        level_after = user_after.get("level", 1)
+        lang = user_after.get("ui_language", "ru")
+        
+        from app.translations import t
+        bonus_msg = ""
+        if level_after > level_before:
+            bonus_msg = "\n" + t("msg_level_up", lang, level=level_after)
+        else:
+            bonus_msg = "\n" + t("msg_xp_gain", lang, xp=30)
 
         # Format result
-        response_text = _format_voice_result(result)
+        response_text = _format_voice_result(result) + "\n" + bonus_msg
 
         # Delete processing message and send result
         try:
@@ -85,7 +99,7 @@ async def handle_voice(message: Message, state: FSMContext, bot: Bot) -> None:
 
         await message.answer(
             response_text,
-            reply_markup=voice_feedback_keyboard(poem_id),
+            reply_markup=poem_action_keyboard(poem_id, is_new=False, lang=lang),
             parse_mode="Markdown",
         )
     except Exception as e:
@@ -96,7 +110,7 @@ async def handle_voice(message: Message, state: FSMContext, bot: Bot) -> None:
             pass
         await message.answer(
             "❌ Не удалось обработать голосовое сообщение. Попробуйте ещё раз.",
-            reply_markup=voice_feedback_keyboard(poem_id),
+            reply_markup=poem_action_keyboard(poem_id, is_new=False, lang="ru"),
         )
 
     await state.clear()

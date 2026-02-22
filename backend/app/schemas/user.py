@@ -13,6 +13,8 @@ class UserCreate(BaseModel):
 class UserUpdate(BaseModel):
     language_pref: str | None = None
     preferences: dict | None = None
+    ui_language: str | None = None
+    notification_time: str | None = None
 
 
 class UserResponse(BaseModel):
@@ -22,6 +24,11 @@ class UserResponse(BaseModel):
     first_name: str | None
     language_pref: str
     preferences: dict
+    xp: int
+    level: int
+    streak: int
+    ui_language: str
+    notification_time: str
     created_at: datetime
 
     model_config = {"from_attributes": True}
