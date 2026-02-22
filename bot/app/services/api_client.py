@@ -1,6 +1,7 @@
 """API client for communicating with the backend."""
 
 import httpx
+from typing import List, Dict, Any
 from app.config import bot_settings
 
 
@@ -38,13 +39,19 @@ class APIClient:
     async def get_poem(self, poem_id: str):
         return await self._request("GET", f"/api/v1/poems/{poem_id}")
 
+    async def parse_poem(self, url: str):
+        return await self._request("POST", "/api/v1/poems/parse", json={"url": url})
+
     async def recommend_poem(self, telegram_id: int):
         return await self._request("POST", f"/api/v1/memorization/recommend/{telegram_id}")
 
-    async def get_pgvector_recommendations(self, telegram_id: int, mood: str | None = None, limit: int = 1):
+    async def get_pgvector_recommendations(self, telegram_id: int, mood: str | None = None, length: str | None = None, limit: int = 5) -> List[Dict[str, Any]]:
+        """Fetch highly personalized recommendations from the new PGVector endpoint."""
         params = {"telegram_id": telegram_id, "limit": limit}
         if mood:
             params["mood"] = mood
+        if length:
+            params["length"] = length
         return await self._request("GET", "/api/v1/recommendations/", params=params)
 
     async def review_poem(self, telegram_id: int, poem_id: str, score: int):

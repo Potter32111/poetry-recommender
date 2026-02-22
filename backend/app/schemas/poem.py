@@ -3,6 +3,9 @@ import uuid
 from pydantic import BaseModel
 
 
+class ParseRequest(BaseModel):
+    url: str
+
 class PoemCreate(BaseModel):
     title: str
     author: str

@@ -19,6 +19,7 @@ class User(Base):
     first_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     language_pref: Mapped[str] = mapped_column(String(10), default="both")  # "en", "ru", "both"
     preferences: Mapped[dict] = mapped_column(JSONB, default=dict)
+    last_mood: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()

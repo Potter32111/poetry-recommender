@@ -15,12 +15,25 @@ from app.keyboards.menus import (
     review_score_keyboard,
     main_menu_keyboard,
 )
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 logger = logging.getLogger(__name__)
 router = Router()
 
 class RecommendFlow(StatesGroup):
     waiting_for_mood = State()
+    waiting_for_length = State()
+
+def poem_length_keyboard() -> InlineKeyboardMarkup:
+    """Keyboard for selecting poem length."""
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="Короткие (до 12 строк)", callback_data="len_short")],
+            [InlineKeyboardButton(text="Средние (13-30 строк)", callback_data="len_medium")],
+            [InlineKeyboardButton(text="Длинные (>30 строк)", callback_data="len_long")],
+            [InlineKeyboardButton(text="Любые", callback_data="len_any")],
+        ]
+    )
 
 # ─── Commands ───────────────────────────────────────────────
 
@@ -66,6 +79,39 @@ async def cmd_surprise(message: Message, state: FSMContext) -> None:
     await state.clear()
     await _send_recommendation(message, message.from_user.id, mood=None)
 
+@router.message(Command("parse"))
+async def cmd_parse(message: Message) -> None:
+    """Handle /parse <URL> — add a new poem from a website."""
+    if not message.from_user or not message.text:
+        return
+        
+    parts = message.text.split(maxsplit=1)
+    if len(parts) < 2:
+        await message.answer(
+            "⚠️ Please provide a URL!\n"
+            "Example: `/parse https://stihi.ru/2004/08/25-240`",
+            parse_mode="Markdown"
+        )
+        return
+        
+    url = parts[1]
+    wait_msg = await message.answer("🔄 Scanning the website, extracting text, and generating AI vectors...")
+    
+    try:
+        poem = await api.parse_poem(url)
+        await wait_msg.edit_text(
+            f"✅ **Poem Successfully Added!**\n\n"
+            f"📖 **{poem['title']}**\n"
+            f"*{poem['author']}*\n\n"
+            "It is now available in our global library and recommendation engine!",
+            parse_mode="Markdown",
+            reply_markup=poem_action_keyboard(poem["id"])
+        )
+    except Exception as e:
+        logger.error(f"Parse command failed: {e}")
+        await wait_msg.edit_text(
+            "❌ Failed to parse the poem. Make sure it's a valid link to a poem on supported sites (e.g. stihi.ru)."
+        )
 
 @router.message(Command("review"))
 async def cmd_review(message: Message) -> None:
@@ -213,18 +259,35 @@ async def cb_skip(callback: CallbackQuery, state: FSMContext) -> None:
     """Handle skip — get another recommendation."""
     if not callback.from_user or not callback.message:
         return
-    # On skip, we just give a random personalized one without asking again
-    await _send_recommendation(callback.message, callback.from_user.id, mood=None)
+    # On skip, we just give a random personalized one using saved mood/length
+    await _send_recommendation(callback.message, callback.from_user.id, mood=None, length=None)
     await callback.answer()
 
 
 @router.message(RecommendFlow.waiting_for_mood, F.text)
 async def handle_mood(message: Message, state: FSMContext) -> None:
-    await state.clear()
     if not message.from_user or not message.text:
         return
-    await message.answer("🔄 Analyzing your request and searching...")
-    await _send_recommendation(message, message.from_user.id, mood=message.text)
+    await state.update_data(mood=message.text)
+    await message.answer(
+        "📏 Какой длины стихотворение подобрать?",
+        reply_markup=poem_length_keyboard()
+    )
+    await state.set_state(RecommendFlow.waiting_for_length)
+
+@router.callback_query(RecommendFlow.waiting_for_length, F.data.startswith("len_"))
+async def handle_length(callback: CallbackQuery, state: FSMContext) -> None:
+    if not callback.from_user or not callback.message or not callback.data:
+        return
+        
+    data = await state.get_data()
+    mood = data.get("mood")
+    length = callback.data.replace("len_", "")
+    
+    await state.clear()
+    await callback.message.edit_text("🔄 Анализирую запрос и ищу лучшее стихотворение...")
+    await _send_recommendation(callback.message, callback.from_user.id, mood=mood, length=length)
+    await callback.answer()
 
 
 @router.message(F.text)
@@ -240,11 +303,11 @@ async def handle_text(message: Message) -> None:
 
 # ─── Helpers ────────────────────────────────────────────────
 
-async def _send_recommendation(message: Message, telegram_id: int, mood: str | None = None) -> None:
+async def _send_recommendation(message: Message, telegram_id: int, mood: str | None = None, length: str | None = None) -> None:
     """Fetch and send a smart poem recommendation."""
     try:
         # Fetch 1 recommendation using our new pgvector-based recommender
-        recs = await api.get_pgvector_recommendations(telegram_id, mood=mood, limit=1)
+        recs = await api.get_pgvector_recommendations(telegram_id, mood=mood, length=length, limit=1)
         if not recs:
             raise ValueError("No recommendations returned")
             

@@ -7,7 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models.poem import Poem
-from app.schemas.poem import PoemCreate, PoemResponse, PoemBrief
+from app.schemas.poem import PoemCreate, PoemResponse, PoemBrief, ParseRequest
+from app.services.parser import parser
 
 router = APIRouter(prefix="/poems", tags=["poems"])
 
@@ -65,4 +66,12 @@ async def create_poem(data: PoemCreate, db: AsyncSession = Depends(get_db)):
     db.add(poem)
     await db.commit()
     await db.refresh(poem)
+    return poem
+
+@router.post("/parse", response_model=PoemResponse, status_code=201)
+async def parse_new_poem(request: ParseRequest):
+    """Parse a poem from a given URL and add it to the database."""
+    poem = await parser.process_url(request.url)
+    if not poem:
+        raise HTTPException(status_code=400, detail="Failed to parse poem from the provided URL. Ensure it is a valid link to a poem on a supported site (e.g. stihi.ru).")
     return poem
