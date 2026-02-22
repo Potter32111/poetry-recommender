@@ -2,9 +2,9 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install ffmpeg for audio conversion
+# Install system dependencies
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ffmpeg wget unzip && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ffmpeg wget unzip gcc python3-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Models are downloaded beforehand and copied to the container
@@ -12,7 +12,7 @@ COPY models_vosk /app/models_vosk
 
 COPY pyproject.toml .
 RUN pip install --no-cache-dir . 2>/dev/null || \
-    pip install --no-cache-dir fastapi uvicorn sqlalchemy asyncpg alembic pydantic pydantic-settings httpx vosk python-multipart
+    pip install --no-cache-dir fastapi uvicorn sqlalchemy asyncpg alembic pydantic pydantic-settings httpx vosk python-multipart pgvector sentence-transformers beautifulsoup4 aiohttp
 
 
 COPY . .

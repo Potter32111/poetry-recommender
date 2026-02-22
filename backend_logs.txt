@@ -1,0 +1,148 @@
+﻿backend-1  | INFO:     Started server process [1]
+backend-1  | INFO:     Waiting for application startup.
+backend-1  | INFO:     Application startup complete.
+backend-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+backend-1  | INFO:     172.19.0.4:38536 - "GET /api/v1/memorization/progress/940433874 HTTP/1.1" 404 Not Found
+backend-1  | INFO:     172.19.0.4:38548 - "POST /api/v1/users/ HTTP/1.1" 201 Created
+backend-1  | INFO:     172.19.0.4:38560 - "PATCH /api/v1/users/940433874 HTTP/1.1" 200 OK
+backend-1  | INFO:     172.19.0.4:53568 - "POST /api/v1/memorization/recommend/940433874 HTTP/1.1" 200 OK
+backend-1  | INFO:     172.19.0.4:58140 - "POST /api/v1/memorization/recommend/940433874 HTTP/1.1" 200 OK
+backend-1  | INFO:     172.19.0.4:58148 - "POST /api/v1/memorization/recommend/940433874 HTTP/1.1" 200 OK
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:213) Decoding params beam=10 max-active=3000 lattice-beam=2
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:216) Silence phones 1:2:3:4:5:6:7:8:9:10
+backend-1  | LOG (VoskAPI:RemoveOrphanNodes():nnet-nnet.cc:948) Removed 0 orphan nodes.
+backend-1  | LOG (VoskAPI:RemoveOrphanComponents():nnet-nnet.cc:847) Removing 0 orphan components.
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:248) Loading i-vector extractor from /app/models_vosk/vosk-model-small-ru-0.22/ivector/final.ie
+backend-1  | LOG (VoskAPI:ComputeDerivedVars():ivector-extractor.cc:183) Computing derived variables for iVector extractor
+backend-1  | LOG (VoskAPI:ComputeDerivedVars():ivector-extractor.cc:204) Done.
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:282) Loading HCL and G from /app/models_vosk/vosk-model-small-ru-0.22/graph/HCLr.fst /app/models_vosk/vosk-model-small-ru-0.22/graph/Gr.fst
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:308) Loading winfo /app/models_vosk/vosk-model-small-ru-0.22/graph/phones/word_boundary.int
+backend-1  | INFO:     172.19.0.4:57050 - "POST /api/v1/memorization/check-voice/940433874/60684929-efdf-40b7-93b5-551375096676 HTTP/1.1" 200 OK
+backend-1  | INFO:     172.19.0.4:55358 - "POST /api/v1/memorization/recommend/940433874 HTTP/1.1" 200 OK
+backend-1  | INFO:     172.19.0.4:56840 - "POST /api/v1/memorization/check-voice/940433874/8fc300f6-724e-4696-b05c-6eb2290432f7 HTTP/1.1" 200 OK
+backend-1  | INFO:     172.19.0.4:36658 - "POST /api/v1/memorization/check-voice/940433874/8fc300f6-724e-4696-b05c-6eb2290432f7 HTTP/1.1" 200 OK
+backend-1  | INFO:     172.19.0.4:40292 - "GET /api/v1/memorization/progress/940433874 HTTP/1.1" 200 OK
+backend-1  | INFO:     Shutting down
+backend-1  | INFO:     Waiting for application shutdown.
+backend-1  | INFO:     Application shutdown complete.
+backend-1  | INFO:     Finished server process [1]
+backend-1  | INFO:     Started server process [1]
+backend-1  | INFO:     Waiting for application startup.
+backend-1  | INFO:     Application startup complete.
+backend-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+backend-1  | INFO:     172.19.0.4:60938 - "POST /api/v1/memorization/recommend/940433874 HTTP/1.1" 200 OK
+backend-1  | INFO:     172.19.0.4:38734 - "POST /api/v1/memorization/recommend/940433874 HTTP/1.1" 200 OK
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:213) Decoding params beam=10 max-active=3000 lattice-beam=2
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:216) Silence phones 1:2:3:4:5:6:7:8:9:10
+backend-1  | LOG (VoskAPI:RemoveOrphanNodes():nnet-nnet.cc:948) Removed 0 orphan nodes.
+backend-1  | LOG (VoskAPI:RemoveOrphanComponents():nnet-nnet.cc:847) Removing 0 orphan components.
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:248) Loading i-vector extractor from /app/models_vosk/vosk-model-small-ru-0.22/ivector/final.ie
+backend-1  | LOG (VoskAPI:ComputeDerivedVars():ivector-extractor.cc:183) Computing derived variables for iVector extractor
+backend-1  | LOG (VoskAPI:ComputeDerivedVars():ivector-extractor.cc:204) Done.
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:282) Loading HCL and G from /app/models_vosk/vosk-model-small-ru-0.22/graph/HCLr.fst /app/models_vosk/vosk-model-small-ru-0.22/graph/Gr.fst
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:308) Loading winfo /app/models_vosk/vosk-model-small-ru-0.22/graph/phones/word_boundary.int
+backend-1  | INFO:     172.19.0.4:34298 - "POST /api/v1/memorization/check-voice/940433874/2e771184-069f-40bf-b3c0-82e18bc3b958 HTTP/1.1" 200 OK
+backend-1  | INFO:     Shutting down
+backend-1  | INFO:     Waiting for application shutdown.
+backend-1  | INFO:     Application shutdown complete.
+backend-1  | INFO:     Finished server process [1]
+backend-1  | INFO:     Started server process [1]
+backend-1  | INFO:     Waiting for application startup.
+backend-1  | INFO:     Application startup complete.
+backend-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:213) Decoding params beam=10 max-active=3000 lattice-beam=2
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:216) Silence phones 1:2:3:4:5:6:7:8:9:10
+backend-1  | LOG (VoskAPI:RemoveOrphanNodes():nnet-nnet.cc:948) Removed 0 orphan nodes.
+backend-1  | LOG (VoskAPI:RemoveOrphanComponents():nnet-nnet.cc:847) Removing 0 orphan components.
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:248) Loading i-vector extractor from /app/models_vosk/vosk-model-small-ru-0.22/ivector/final.ie
+backend-1  | LOG (VoskAPI:ComputeDerivedVars():ivector-extractor.cc:183) Computing derived variables for iVector extractor
+backend-1  | LOG (VoskAPI:ComputeDerivedVars():ivector-extractor.cc:204) Done.
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:282) Loading HCL and G from /app/models_vosk/vosk-model-small-ru-0.22/graph/HCLr.fst /app/models_vosk/vosk-model-small-ru-0.22/graph/Gr.fst
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:308) Loading winfo /app/models_vosk/vosk-model-small-ru-0.22/graph/phones/word_boundary.int
+backend-1  | INFO:     172.19.0.4:37744 - "POST /api/v1/memorization/check-voice/940433874/2e771184-069f-40bf-b3c0-82e18bc3b958 HTTP/1.1" 200 OK
+backend-1  | INFO:     Shutting down
+backend-1  | INFO:     Waiting for application shutdown.
+backend-1  | INFO:     Application shutdown complete.
+backend-1  | INFO:     Finished server process [1]
+backend-1  | INFO:     Started server process [1]
+backend-1  | INFO:     Waiting for application startup.
+backend-1  | INFO:     Application startup complete.
+backend-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+backend-1  | INFO:     172.19.0.4:46726 - "POST /api/v1/memorization/recommend/940433874 HTTP/1.1" 200 OK
+backend-1  | INFO:     172.19.0.4:46728 - "POST /api/v1/memorization/recommend/940433874 HTTP/1.1" 200 OK
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:213) Decoding params beam=10 max-active=3000 lattice-beam=2
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:216) Silence phones 1:2:3:4:5:6:7:8:9:10
+backend-1  | LOG (VoskAPI:RemoveOrphanNodes():nnet-nnet.cc:948) Removed 0 orphan nodes.
+backend-1  | LOG (VoskAPI:RemoveOrphanComponents():nnet-nnet.cc:847) Removing 0 orphan components.
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:248) Loading i-vector extractor from /app/models_vosk/vosk-model-small-ru-0.22/ivector/final.ie
+backend-1  | LOG (VoskAPI:ComputeDerivedVars():ivector-extractor.cc:183) Computing derived variables for iVector extractor
+backend-1  | LOG (VoskAPI:ComputeDerivedVars():ivector-extractor.cc:204) Done.
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:282) Loading HCL and G from /app/models_vosk/vosk-model-small-ru-0.22/graph/HCLr.fst /app/models_vosk/vosk-model-small-ru-0.22/graph/Gr.fst
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:308) Loading winfo /app/models_vosk/vosk-model-small-ru-0.22/graph/phones/word_boundary.int
+backend-1  | INFO:     172.19.0.4:58692 - "POST /api/v1/memorization/check-voice/940433874/218ae72a-730f-45e4-9de8-a267548d1b81 HTTP/1.1" 200 OK
+backend-1  | INFO:     Shutting down
+backend-1  | INFO:     Waiting for application shutdown.
+backend-1  | INFO:     Application shutdown complete.
+backend-1  | INFO:     Finished server process [1]
+backend-1  | INFO:     Started server process [1]
+backend-1  | INFO:     Waiting for application startup.
+backend-1  | INFO:     Application startup complete.
+backend-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:213) Decoding params beam=10 max-active=3000 lattice-beam=2
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:216) Silence phones 1:2:3:4:5:6:7:8:9:10
+backend-1  | LOG (VoskAPI:RemoveOrphanNodes():nnet-nnet.cc:948) Removed 0 orphan nodes.
+backend-1  | LOG (VoskAPI:RemoveOrphanComponents():nnet-nnet.cc:847) Removing 0 orphan components.
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:248) Loading i-vector extractor from /app/models_vosk/vosk-model-small-ru-0.22/ivector/final.ie
+backend-1  | LOG (VoskAPI:ComputeDerivedVars():ivector-extractor.cc:183) Computing derived variables for iVector extractor
+backend-1  | LOG (VoskAPI:ComputeDerivedVars():ivector-extractor.cc:204) Done.
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:282) Loading HCL and G from /app/models_vosk/vosk-model-small-ru-0.22/graph/HCLr.fst /app/models_vosk/vosk-model-small-ru-0.22/graph/Gr.fst
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:308) Loading winfo /app/models_vosk/vosk-model-small-ru-0.22/graph/phones/word_boundary.int
+backend-1  | INFO:     172.19.0.4:38074 - "POST /api/v1/memorization/check-voice/940433874/218ae72a-730f-45e4-9de8-a267548d1b81 HTTP/1.1" 200 OK
+backend-1  | INFO:     172.19.0.1:41000 - "GET /api/v1/memorization/debug-last-transcript HTTP/1.1" 404 Not Found
+backend-1  | INFO:     172.19.0.1:41016 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+backend-1  | INFO:     172.19.0.4:46332 - "POST /api/v1/memorization/recommend/940433874 HTTP/1.1" 200 OK
+backend-1  | INFO:     172.19.0.4:44924 - "POST /api/v1/memorization/check-voice/940433874/f8aa8760-d6fa-43db-a036-f8924c1faee0 HTTP/1.1" 200 OK
+backend-1  | INFO:     172.19.0.1:56612 - "GET /api/v1/memorization/debug-last-transcript HTTP/1.1" 404 Not Found
+backend-1  | INFO:     172.19.0.1:56626 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+backend-1  | INFO:     172.19.0.1:40788 - "GET /api/v1/memorization/debug-last-transcript HTTP/1.1" 404 Not Found
+backend-1  | INFO:     Shutting down
+backend-1  | INFO:     Waiting for application shutdown.
+backend-1  | INFO:     Application shutdown complete.
+backend-1  | INFO:     Finished server process [1]
+backend-1  | INFO:     Started server process [1]
+backend-1  | INFO:     Waiting for application startup.
+backend-1  | INFO:     Application startup complete.
+backend-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+backend-1  | INFO:     172.19.0.1:35920 - "GET /api/v1/memorization/debug-last-transcript HTTP/1.1" 200 OK
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:213) Decoding params beam=10 max-active=3000 lattice-beam=2
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:216) Silence phones 1:2:3:4:5:6:7:8:9:10
+backend-1  | LOG (VoskAPI:RemoveOrphanNodes():nnet-nnet.cc:948) Removed 0 orphan nodes.
+backend-1  | LOG (VoskAPI:RemoveOrphanComponents():nnet-nnet.cc:847) Removing 0 orphan components.
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:248) Loading i-vector extractor from /app/models_vosk/vosk-model-small-ru-0.22/ivector/final.ie
+backend-1  | LOG (VoskAPI:ComputeDerivedVars():ivector-extractor.cc:183) Computing derived variables for iVector extractor
+backend-1  | LOG (VoskAPI:ComputeDerivedVars():ivector-extractor.cc:204) Done.
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:282) Loading HCL and G from /app/models_vosk/vosk-model-small-ru-0.22/graph/HCLr.fst /app/models_vosk/vosk-model-small-ru-0.22/graph/Gr.fst
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:308) Loading winfo /app/models_vosk/vosk-model-small-ru-0.22/graph/phones/word_boundary.int
+backend-1  | !!! VOSK TRANSCRIBED TEXT: '╨╝╨╜╨╡ ╨╜╤Ç╨░╨▓╨╕╤é╤ü╤Å ╤ç╤é╨╛ ╨▓╤ï ╨▒╨╛╨╗╤î╨╜╤ï ╨╜╨╡ ╨╝╨╜╨╛╨╣ ╨╝╨╜╨╡ ╨╜╤Ç╨░╨▓╨╕╤é╤ü╤Å ╤ç╤é╨╛ ╤Å ╨▒╨╛╨╗╤î╨╜╨░ ╨╜╨╡ ╨▓╨░╨╝╨╕ ╤ç╤é╨╛ ╨╜╨╕╨║╨╛╨│╨┤╨░ ╤é╤Å╨╢╤æ╨╗╤ï╨╡ ╤ê╨░╤Ç ╨╖╨╡╨╝╨╜╨╛╨╣ ╨╜╨╡ ╤â╨┐╨╗╤ï╨▓╤æ╤é ╨┐╨╛╨┤ ╨╜╨░╤ê╨╕╨╝╨╕ ╨╜╨╛╨│╨░╨╝╨╕ ╨╝╨╜╨╡ ╨╜╤Ç╨░╨▓╨╕╤é╤ü╤Å ╤ç╤é╨╛ ╨╝╨╛╨╢╨╜╨╛ ╨▒╤ï╤é╤î ╤ü╨╝╨╡╤ê╨╜╨╛╨╣ ╤Ç╨░╤ü╨┐╤â╤ë╨╡╨╜╨╜╤ï╨╣ ╨╕ ╨╜╨╡ ╨╕╨│╤Ç╨░╤é╤î ╤ü╨╗╨╛╨▓╨░╨╝╨╕ ╨╕ ╨╜╨╡ ╨║╤Ç╨░╤ü╨╜╨╡╤é╤î ╤â╨┤╤â╤ê╨╗╨╕╨▓╨╛╨╣ ╨▓╨╛╨╗╨╜╨╛╨╣ ╤ü╨╗╨╡╨│╨║╨░ ╤ü╨╛╨┐╤Ç╨╕╨║╨╛╤ü╨╜╤â╨▓╤ê╨╕╤ü╤î ╤Ç╤â╨║╨░╨▓╨░╨╝╨╕ ╨╝╨╜╨╡ ╨╜╤Ç╨░╨▓╨╕╤é╤ü╤Å ╨╡╤ë╤æ ╤ç╤é╨╛ ╨▓╤ï ╨┐╤Ç╨╕ ╨╝╨╜╨╡ ╤ü╨┐╨╛╨║╨╛╨╣╨╜╨╛ ╨╛╨▒╨╜╨╕╨╝╨░╨╡╤é ╨╕ ╨┤╤Ç╤â╨│╤â╤Ä ╨╜╨╡ ╨┐╤Ç╨╛╤ç╤î ╤ì╤é╨╕╨╝ ╨╜╨╡╨▓╨░╨┤╨░ ╨▓╨░╨╝ ╨╛╨│╨╜╨╡ ╨│╨╛╤Ç╨╡╤é╤î ╨╖╨░ ╤é╨╛ ╤ç╤é╨╛ ╤Å ╨╜╨╡ ╨▓╨░╤ü ╤å╨╡╨╗╤â╤Ä' !!!
+backend-1  | INFO:     172.19.0.4:49786 - "POST /api/v1/memorization/check-voice/940433874/f8aa8760-d6fa-43db-a036-f8924c1faee0 HTTP/1.1" 200 OK
+backend-1  | INFO:     172.19.0.4:48988 - "POST /api/v1/memorization/recommend/940433874 HTTP/1.1" 200 OK
+backend-1  | INFO:     172.19.0.1:47100 - "GET /api/v1/memorization/debug-last-transcript HTTP/1.1" 200 OK
+backend-1  | INFO:     172.19.0.1:47104 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+backend-1  | INFO:     172.19.0.1:44686 - "GET /api/v1/memorization/debug-last-transcript HTTP/1.1" 200 OK
+backend-1  | INFO:     172.19.0.1:44700 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+backend-1  | !!! VOSK TRANSCRIBED TEXT: '╨╝╨╛╨╗╤ç╨╕ ╤ü╨║╤Ç╤ï╨▓╨░╨╡╤ê╤î╤ü╤Å ╨╕ ╤é╨░╨╕ ╨╕ ╤ç╤â╨▓╤ü╤é╨▓╨░ ╨╕ ╨╝╨╡╤ç╤é╤ï ╤ü╨▓╨╛╨╕ ╨┐╤â╤ü╨║╨░╨╣ ╨▓ ╨┤╤â╤ê╨╡╨▓╨╜╨╛╨╣ ╨│╨╗╤â╨▒╨╕╨╜╨╡ ╨▓╤ü╤é╨░╤Ä╤é ╨╕ ╨╖╨░╤à╨╛╨┤╤Å╤é ╨░ ╨╜╨╡ ╨▒╨╡╨╖╨╝╨╛╨╗╨▓╨╜╨╛ ╨║╨░╨║ ╨╖╨▓╨╡╨╖╨┤╤ï ╨▓ ╨╜╨╛╤ç╨╕ ╨╗╤Ä╨▒╤â╨╣╤ü╤Å ╨╕╨╝╨╕ ╨╕ ╨╝╨╛╨╗╤ç╨╕ ╨║╨░╨║ ╤ü╨╡╤Ç╨┤╤å╨╡ ╨▓╤ï╤ü╨║╨░╨╖╨░╤é╤î ╤ü╨╡╨▒╤Å ╨┤╤Ç╤â╨│╨╛╨╝╤â ╨║╨░╨║ ╨┐╨╛╨╜╤Å╤é╤î ╤é╨╡╨▒╤Å ╨┐╨╛╨╣╨╝╤æ╤é ╨╗╨╕ ╨╛╨╜ ╨╛ ╤ç╨╡╨╝ ╤é╤ï ╨╢╨╡ ╤ç╨╡╨╝ ╤é╤ï ╨╢╨╕╨▓╤æ╤ê╤î ╨╝╤ï╤ü╨╗╤î ╨╕ ╨╡╤ü╤é╤î ╨╗╨╛╨╢╤î ╨▓╨╖╤Ç╤ï╨▓╨░╤Å ╨▓╨╛╨╖╨╝╤â╤é╨╕╤é╤î ╨║╨╗╤Ä╤ç╨╕ ╨┐╨╕╤é╨░╤Å╤ü╤î ╨╕ ╨╕╨╝╨╕ ╨╕ ╨╝╨╛╨╗╤ç╨╕ ╨╗╨╡╨╢╨╕╤é ╨▓ ╤ü╨╡╨▒╨╡ ╤ü╨░╨╝╨╛╨╝ ╤â╨╝╨╡╨╣ ╨╡╤ü╤é╤î ╤å╨╡╨╗╤ï╨╣ ╨╝╨╕╤Ç ╨▓ ╨┤╤â╤ê╨╡ ╤é╨▓╨╛╨╡╨╣ ╤é╨░╨╕╨╜╤ü╤é╨▓╨╡╨╜╨╜╨╛ ╨▓╨╛╨╗╤ê╨╡╨▒╨╜╤ï╤à ╨┤╨╛╨╝ ╨╕╤à ╨╛╨│╨╗╤â╤ê╨╕╤é╤î ╨╜╨░╤Ç╤â╨╢╨╜╨╛╨╣ ╤ê╤â╨╝ ╨╜╨╡ ╨▓ ╨╜╤ï╨╡ ╤Ç╨░╨╖╨│╨╛╨╜╤Å╤é ╨╗╤â╤ç╨╕ ╨▓╨╜╨╕╨╝╨░╨╣ ╨╕╤à ╨┐╨╡╨╜╨╕╤Ä ╨╕ ╨╝╨╛╨╗╤ç╨╕' !!!
+backend-1  | INFO:     172.19.0.4:44026 - "POST /api/v1/memorization/check-voice/940433874/1f070956-ed19-4c59-8e00-cbc570d3e144 HTTP/1.1" 200 OK
+backend-1  | INFO:     172.19.0.4:37216 - "POST /api/v1/memorization/recommend/940433874 HTTP/1.1" 200 OK
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:213) Decoding params beam=10 max-active=3000 lattice-beam=2
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:216) Silence phones 1:2:3:4:5:6:7:8:9:10
+backend-1  | LOG (VoskAPI:RemoveOrphanNodes():nnet-nnet.cc:948) Removed 0 orphan nodes.
+backend-1  | LOG (VoskAPI:RemoveOrphanComponents():nnet-nnet.cc:847) Removing 0 orphan components.
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:248) Loading i-vector extractor from /app/models_vosk/vosk-model-small-en-us-0.15/ivector/final.ie
+backend-1  | LOG (VoskAPI:ComputeDerivedVars():ivector-extractor.cc:183) Computing derived variables for iVector extractor
+backend-1  | LOG (VoskAPI:ComputeDerivedVars():ivector-extractor.cc:204) Done.
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:282) Loading HCL and G from /app/models_vosk/vosk-model-small-en-us-0.15/graph/HCLr.fst /app/models_vosk/vosk-model-small-en-us-0.15/graph/Gr.fst
+backend-1  | LOG (VoskAPI:ReadDataFiles():model.cc:308) Loading winfo /app/models_vosk/vosk-model-small-en-us-0.15/graph/phones/word_boundary.int
+backend-1  | !!! VOSK TRANSCRIBED TEXT: 'who's woods with you sir a human k know he's house you use the religious though he will not see me stop him here the which is would feel up is no my little horse must him cake year to stop is out a farm house near between the woods in frozen lake the dark the will cover the year he gives you her harness bill below this is shake to ask if whereas some mistake the only other sounds the sweep of easy why i'm in now in if wake the woods or loudly dark and deep but they have promises to keep him miles to go before i sleep in miles to go before i sleep' !!!
+backend-1  | INFO:     172.19.0.4:39390 - "POST /api/v1/memorization/check-voice/940433874/37a4648e-227c-480f-808a-72cf697a8624 HTTP/1.1" 200 OK
+backend-1  | INFO:     172.19.0.1:49460 - "GET /api/v1/memorization/debug-last-transcript HTTP/1.1" 200 OK
+backend-1  | INFO:     172.19.0.1:49472 - "GET /favicon.ico HTTP/1.1" 404 Not Found

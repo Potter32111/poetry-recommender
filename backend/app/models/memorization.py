@@ -5,7 +5,7 @@ from sqlalchemy import String, Float, Integer, DateTime, ForeignKey, func
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models.user import Base
+from app.database import Base
 
 
 class Memorization(Base):

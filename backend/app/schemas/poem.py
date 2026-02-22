@@ -8,7 +8,7 @@ class PoemCreate(BaseModel):
     author: str
     text: str
     language: str = "en"
-    difficulty: int = 3
+    difficulty: float = 3.0
     themes: list[str] = []
     era: str | None = None
 
@@ -19,7 +19,7 @@ class PoemResponse(BaseModel):
     author: str
     text: str
     language: str
-    difficulty: int
+    difficulty: float
     themes: list[str]
     era: str | None
     lines_count: int
@@ -32,7 +32,7 @@ class PoemBrief(BaseModel):
     title: str
     author: str
     language: str
-    difficulty: int
+    difficulty: float
     lines_count: int
 
     model_config = {"from_attributes": True}

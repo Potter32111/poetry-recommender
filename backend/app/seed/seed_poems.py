@@ -4,8 +4,7 @@ import asyncio
 
 from sqlalchemy import select, func
 
-from app.database import engine, async_session
-from app.models.user import Base
+from app.database import engine, async_session, Base
 from app.models.poem import Poem
 from app.seed.poems_data import POEMS
 

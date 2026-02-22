@@ -3,12 +3,9 @@ from datetime import datetime
 
 from sqlalchemy import String, BigInteger, DateTime, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-
-class Base(DeclarativeBase):
-    """Base class for all models."""
-    pass
+from app.database import Base
 
 
 class User(Base):

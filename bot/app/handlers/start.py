@@ -206,13 +206,22 @@ async def handle_text(message: Message) -> None:
 # ─── Helpers ────────────────────────────────────────────────
 
 async def _send_recommendation(message: Message, telegram_id: int) -> None:
-    """Fetch and send a poem recommendation."""
+    """Fetch and send a smart poem recommendation."""
     try:
-        poem = await api.recommend_poem(telegram_id)
-        title = poem["title"]
-        author = poem["author"]
-        text = poem["text"]
-        poem_id = poem["id"]
+        # Fetch 1 recommendation using our new pgvector-based recommender
+        recs = await api.get_pgvector_recommendations(telegram_id, limit=1)
+        if not recs:
+            raise ValueError("No recommendations returned")
+            
+        rec_poem = recs[0]
+        poem_id = rec_poem["id"]
+        
+        # Fetch the full text for the recommended poem
+        poem_full = await api.get_poem(poem_id)
+        
+        title = poem_full["title"]
+        author = poem_full["author"]
+        text = poem_full["text"]
 
         # Truncate if too long for Telegram
         if len(text) > 3500:

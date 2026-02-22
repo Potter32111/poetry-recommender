@@ -5,15 +5,14 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.api.router import router
-from app.database import engine
-from app.models.user import Base
+from app.database import engine, Base
+import app.models  # noqa: F401 — ensure all models registered with Base
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Create tables on startup."""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    """Application lifespan events."""
+    # Alembic handles database migrations now, so no Base.metadata.create_all
     yield
 
 
@@ -24,7 +23,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.include_router(router)
+app.include_router(router, prefix="/api/v1")
 
 
 @app.get("/health")
