@@ -25,6 +25,8 @@ services:
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
     ports:
       - "8000:8000"
+    volumes:
+      - hf_cache:/root/.cache/huggingface
     restart: unless-stopped
 
   bot:
@@ -38,3 +40,4 @@ services:
 
 volumes:
   pgdata:
+  hf_cache:

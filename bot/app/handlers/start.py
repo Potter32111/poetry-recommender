@@ -5,6 +5,8 @@ import logging
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import CommandStart, Command
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 
 from app.services.api_client import api
 from app.keyboards.menus import (
@@ -17,6 +19,8 @@ from app.keyboards.menus import (
 logger = logging.getLogger(__name__)
 router = Router()
 
+class RecommendFlow(StatesGroup):
+    waiting_for_mood = State()
 
 # ─── Commands ───────────────────────────────────────────────
 
@@ -42,11 +46,25 @@ async def cmd_start(message: Message) -> None:
 
 
 @router.message(Command("recommend"))
-async def cmd_recommend(message: Message) -> None:
-    """Handle /recommend — get a poem recommendation."""
+async def cmd_recommend(message: Message, state: FSMContext) -> None:
+    """Handle /recommend — ask user for context."""
     if not message.from_user:
         return
-    await _send_recommendation(message, message.from_user.id)
+    await message.answer(
+        "🧠 **Smart Recommendations**\n\n"
+        "What are you in the mood for?\n"
+        "(e.g., 'A romantic poem about autumn' or 'Something sad')\n\n"
+        "Or just tap '/surprise' for a personalized pick based on your history!",
+        parse_mode="Markdown",
+    )
+    await state.set_state(RecommendFlow.waiting_for_mood)
+
+@router.message(Command("surprise"))
+async def cmd_surprise(message: Message, state: FSMContext) -> None:
+    if not message.from_user:
+        return
+    await state.clear()
+    await _send_recommendation(message, message.from_user.id, mood=None)
 
 
 @router.message(Command("review"))
@@ -111,11 +129,18 @@ async def cb_language(callback: CallbackQuery) -> None:
 
 
 @router.callback_query(F.data == "recommend")
-async def cb_recommend(callback: CallbackQuery) -> None:
+async def cb_recommend(callback: CallbackQuery, state: FSMContext) -> None:
     """Handle recommend button."""
     if not callback.from_user or not callback.message:
         return
-    await _send_recommendation(callback.message, callback.from_user.id)
+    await callback.message.answer(
+        "🧠 **Smart Recommendations**\n\n"
+        "What are you in the mood for?\n"
+        "(e.g., 'A romantic poem about autumn' or 'Something sad')\n\n"
+        "Or just tap '/surprise' for a personalized pick based on your history!",
+         parse_mode="Markdown"
+    )
+    await state.set_state(RecommendFlow.waiting_for_mood)
     await callback.answer()
 
 
@@ -184,12 +209,22 @@ async def cb_score(callback: CallbackQuery) -> None:
 
 
 @router.callback_query(F.data == "skip")
-async def cb_skip(callback: CallbackQuery) -> None:
+async def cb_skip(callback: CallbackQuery, state: FSMContext) -> None:
     """Handle skip — get another recommendation."""
     if not callback.from_user or not callback.message:
         return
-    await _send_recommendation(callback.message, callback.from_user.id)
+    # On skip, we just give a random personalized one without asking again
+    await _send_recommendation(callback.message, callback.from_user.id, mood=None)
     await callback.answer()
+
+
+@router.message(RecommendFlow.waiting_for_mood, F.text)
+async def handle_mood(message: Message, state: FSMContext) -> None:
+    await state.clear()
+    if not message.from_user or not message.text:
+        return
+    await message.answer("🔄 Analyzing your request and searching...")
+    await _send_recommendation(message, message.from_user.id, mood=message.text)
 
 
 @router.message(F.text)
@@ -205,11 +240,11 @@ async def handle_text(message: Message) -> None:
 
 # ─── Helpers ────────────────────────────────────────────────
 
-async def _send_recommendation(message: Message, telegram_id: int) -> None:
+async def _send_recommendation(message: Message, telegram_id: int, mood: str | None = None) -> None:
     """Fetch and send a smart poem recommendation."""
     try:
         # Fetch 1 recommendation using our new pgvector-based recommender
-        recs = await api.get_pgvector_recommendations(telegram_id, limit=1)
+        recs = await api.get_pgvector_recommendations(telegram_id, mood=mood, limit=1)
         if not recs:
             raise ValueError("No recommendations returned")
             

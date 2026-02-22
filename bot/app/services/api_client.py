@@ -41,8 +41,10 @@ class APIClient:
     async def recommend_poem(self, telegram_id: int):
         return await self._request("POST", f"/api/v1/memorization/recommend/{telegram_id}")
 
-    async def get_pgvector_recommendations(self, telegram_id: int, limit: int = 1):
+    async def get_pgvector_recommendations(self, telegram_id: int, mood: str | None = None, limit: int = 1):
         params = {"telegram_id": telegram_id, "limit": limit}
+        if mood:
+            params["mood"] = mood
         return await self._request("GET", "/api/v1/recommendations/", params=params)
 
     async def review_poem(self, telegram_id: int, poem_id: str, score: int):

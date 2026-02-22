@@ -40,49 +40,70 @@ class PoemParser:
             logger.error(f"Error fetching {url}: {e}")
         return None
 
-    async def parse_poem_page(self, html: str) -> Optional[dict]:
+    async def parse_poem_page(self, html: str, url: str = "") -> Optional[dict]:
         """
-        Parses exactly one poem from an HTML string.
-        Adjust the selectors depending on the target website.
+        Parses exactly one poem from an HTML string based on the site.
         """
         if not html:
             return None
             
         soup = BeautifulSoup(html, "html.parser")
         
-        # Search for Title
-        title_element = soup.find("h1")
-        if not title_element:
-            return None
-        title = title_element.get_text(strip=True)
+        # Default initialization
+        title = "Untitled"
+        author = "Unknown"
+        text = ""
+        language = "ru" if "stihi.ru" in url or "rustih.ru" in url else "en"
         
-        # Search for Author
-        author = "Неизвестный"
-        
-        # Search for Poem Text
-        text_element = soup.find("div", class_="poem-text")
-        if not text_element:
+        if "stihi.ru" in url:
+            # Stihi.ru parsing logic
+            title_node = soup.find("h1")
+            author_node = soup.find("div", class_="titleauthor")
+            text_node = soup.find("div", class_="text")
+            
+            if title_node: title = title_node.get_text(strip=True)
+            if author_node:
+                a_tag = author_node.find("a")
+                if a_tag: author = a_tag.get_text(strip=True)
+            if text_node: text = text_node.get_text(separator="\n", strip=True)
+            
+        elif "poemhunter.com" in url:
+            # Poemhunter.com parsing logic
+            title_node = soup.find("h1", class_="title")
+            author_node = soup.find("a", class_="poet")
+            text_node = soup.find("p", class_="poem-body")
+            
+            if title_node: title = title_node.get_text(strip=True)
+            if author_node: author = author_node.get_text(strip=True)
+            if text_node: text = text_node.get_text(separator="\n", strip=True)
+        else:
+            # Fallback for generic sites
+            title_node = soup.find("h1")
+            if title_node: title = title_node.get_text(strip=True)
+            
             paragraphs = soup.find_all("p")
             text = "\n".join(p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 0)
-        else:
-            text = text_element.get_text(separator="\n", strip=True)
             
-        if len(text) < 10:
+        if len(text) < 20: # too short, probably not a poem or failed parse
             return None
+            
+        lines_count = len(text.strip().split("\n"))
+        difficulty = 1.0 + min(lines_count / 10.0, 4.0) # naive difficulty based on length
             
         return {
             "title": title,
             "author": author,
             "text": text,
-            "language": "ru",
-            "difficulty": 3,
-            "lines_count": len(text.strip().split("\n"))
+            "language": language,
+            "difficulty": difficulty,
+            "lines_count": lines_count
         }
 
     async def process_url(self, url: str) -> Optional[Poem]:
         """Orchestrates parsing the URL, generating an embedding, and saving to database."""
+        logger.info(f"Processing URL: {url}")
         html = await self.fetch_html(url)
-        data = await self.parse_poem_page(html)
+        data = await self.parse_poem_page(html, url)
         
         if data:
             logger.info(f"Generating embedding for '{data['title']}'...")

@@ -12,7 +12,7 @@ COPY models_vosk /app/models_vosk
 
 COPY pyproject.toml .
 RUN pip install --no-cache-dir . 2>/dev/null || \
-    pip install --no-cache-dir fastapi uvicorn sqlalchemy asyncpg alembic pydantic pydantic-settings httpx vosk python-multipart pgvector sentence-transformers beautifulsoup4 aiohttp
+    pip install --no-cache-dir fastapi uvicorn sqlalchemy asyncpg alembic pydantic pydantic-settings httpx vosk python-multipart pgvector sentence-transformers beautifulsoup4 aiohttp apscheduler apscheduler
 
 
 COPY . .

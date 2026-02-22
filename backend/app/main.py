@@ -7,12 +7,14 @@ from fastapi import FastAPI
 from app.api.router import router
 from app.database import engine, Base
 import app.models  # noqa: F401 — ensure all models registered with Base
+from app.worker import start_worker
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan events."""
     # Alembic handles database migrations now, so no Base.metadata.create_all
+    start_worker()
     yield
 
 
