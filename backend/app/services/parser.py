@@ -35,8 +35,17 @@ class PoemParser:
     async def fetch_html(self, url: str) -> Optional[str]:
         await self.init_session()
         try:
-            async with self.session.get(url, timeout=10) as response:
+            async with self.session.get(url, timeout=15) as response:
                 if response.status == 200:
+                    # Detect encoding or default to cp1251 for lib.ru
+                    ctype = response.headers.get("Content-Type", "").lower()
+                    if "charset" in ctype:
+                         return await response.text()
+                    
+                    if "lib.ru" in url:
+                        # lib.ru is notoriously Windows-1251
+                        return await response.text(encoding="cp1251", errors="replace")
+                    
                     return await response.text()
                 logger.error(f"Failed to fetch {url}: HTTP {response.status}")
         except Exception as e:
@@ -79,6 +88,30 @@ class PoemParser:
             if title_node: title = title_node.get_text(strip=True)
             if author_node: author = author_node.get_text(strip=True)
             if text_node: text = text_node.get_text(separator="\n", strip=True)
+        elif "lib.ru" in url:
+            # lib.ru parsing logic
+            title_node = soup.find("title") or soup.find("h1")
+            text_node = soup.find("pre")
+            
+            if title_node:
+                 title = title_node.get_text(strip=True).split(":", 1)[-1].strip()
+            
+            if text_node:
+                text = text_node.get_text(strip=True)
+            else:
+                # Fallback for plain txt files wrapped in soup
+                text = soup.get_text(strip=True)
+            
+            # Simple heuristic for author in title "Author. Title" or in path
+            if "." in title and len(title.split(".")[0]) < 30:
+                 author = title.split(".")[0].strip()
+                 title = title.split(".", 1)[1].strip()
+            
+            # If still unknown author, try to guess from URL
+            if author == "Unknown":
+                 path_parts = url.split("/")
+                 if len(path_parts) > 4:
+                      author = path_parts[-2].capitalize()
         else:
             # Fallback for generic sites
             title_node = soup.find("h1")
@@ -102,15 +135,17 @@ class PoemParser:
             "lines_count": lines_count
         }
 
-    async def process_url(self, url: str) -> Optional[Poem]:
+    async def process_url(self, url: str, skip_embeddings: bool = False) -> Optional[Poem]:
         """Orchestrates parsing the URL, generating an embedding, and saving to database."""
-        logger.info(f"Processing URL: {url}")
+        logger.info(f"Processing URL: {url} (skip_embeddings={skip_embeddings})")
         html = await self.fetch_html(url)
         data = await self.parse_poem_page(html, url)
         
         if data:
-            logger.info(f"Generating embedding for '{data['title']}'...")
-            embedding = await ml_service.generate_embedding(data["text"])
+            embedding = None
+            if not skip_embeddings:
+                logger.info(f"Generating embedding for '{data['title']}'...")
+                embedding = await ml_service.generate_embedding(data["text"])
             
             async with async_session() as db:
                 poem = Poem(
