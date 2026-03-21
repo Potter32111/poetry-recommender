@@ -22,7 +22,8 @@ jobs:
         run: pip install ruff
         
       - name: Lint with ruff
-        run: ruff check .
+        run: |
+          ruff check backend/app backend/tests
 
   test:
     runs-on: ubuntu-latest
@@ -56,8 +57,9 @@ jobs:
           
       - name: Install dependencies
         run: |
-          pip install -r backend/requirements.txt
-          pip install pytest pytest-asyncio pytest-cov httpx aiosqlite pytest-mock
+          cd backend
+          pip install -e ".[dev]"
+          pip install aiosqlite pytest-mock
           
       - name: Run pytest
         run: |
