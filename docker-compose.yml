@@ -20,14 +20,15 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    network_mode: "host"
     environment:
-      DATABASE_URL: postgresql+asyncpg://poetry:${DB_PASSWORD:-poetry_secret_123}@db:5432/poetry_bot
+      DATABASE_URL: postgresql+asyncpg://poetry:${DB_PASSWORD:-poetry_secret_123}@localhost:5432/poetry_bot
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
       YANDEX_SEARCH_API_KEY: ${YANDEX_SEARCH_API_KEY:-}
       YANDEX_FOLDER_ID: ${YANDEX_FOLDER_ID:-}
-    ports:
-      - "8000:8000"
+      HF_ENDPOINT: https://hf-mirror.com
     volumes:
+      - ./backend:/app
       - hf_cache:/root/.cache/huggingface
     restart: unless-stopped
 
@@ -35,9 +36,12 @@ services:
     build: ./bot
     depends_on:
       - backend
+    network_mode: "host"
     environment:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
-      BACKEND_URL: http://backend:8000
+      BACKEND_URL: http://localhost:8000
+    volumes:
+      - ./bot:/app
     restart: unless-stopped
 
 volumes:

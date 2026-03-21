@@ -23,14 +23,22 @@ class MLService:
             self._model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
             logger.info("Model loaded successfully.")
 
-    async def generate_embedding(self, text: str) -> List[float]:
+    async def generate_embedding(self, text: str) -> Optional[List[float]]:
         """Generates an embedding vector for the given text."""
-        if self._model is None:
-            # We run the loading in an executor to avoid blocking the event loop
-            await asyncio.to_thread(self.load_model)
-        
-        # Encoding is a CPU bound task, better run it in a thread too
-        embedding = await asyncio.to_thread(self._model.encode, text)
-        return embedding.tolist()
+        try:
+            if self._model is None:
+                # We run the loading in an executor to avoid blocking the event loop
+                # Set a timeout for loading (5 minutes for slow downloads)
+                await asyncio.wait_for(asyncio.to_thread(self.load_model), timeout=300.0)
+            
+            if self._model is None:
+                return None
+
+            # Encoding is a CPU bound task, better run it in a thread too
+            embedding = await asyncio.to_thread(self._model.encode, text)
+            return embedding.tolist()
+        except Exception as e:
+            logger.error(f"Embedding generation failed: {e}")
+            return None
 
 ml_service = MLService()
