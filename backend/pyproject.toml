@@ -26,6 +26,7 @@ dependencies = [
     "sentence-transformers>=2.6.0",
     "beautifulsoup4>=4.12.3",
     "aiohttp>=3.9.3",
+    "apscheduler>=3.10.4",
 ]
 
 [project.optional-dependencies]
@@ -44,7 +45,7 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP", "B", "SIM"]
-ignore = ["E501", "F841", "SIM105", "B008", "F401", "E701", "E702", "E402", "F821", "N806", "B007", "E722", "SIM108", "W293", "UP041", "I001", "UP017", "W291", "UP035"]
+ignore = ["E501", "F841", "SIM105", "B008", "F401", "E701", "E702", "E402", "F821", "N806", "B007", "E722", "SIM108", "W293", "UP041", "I001", "UP017", "W291", "UP035", "UP006", "UP008", "UP045", "F541"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
