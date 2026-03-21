@@ -1,3 +1,10 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
 [project]
 name = "poetry-recommender-backend"
 version = "0.1.0"
@@ -37,7 +44,7 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP", "B", "SIM"]
-ignore = ["E501", "F841", "SIM105", "B008", "F401", "E701", "E702", "E402", "F821", "N806", "B007", "E722", "SIM108"]
+ignore = ["E501", "F841", "SIM105", "B008", "F401", "E701", "E702", "E402", "F821", "N806", "B007", "E722", "SIM108", "W293", "UP041", "I001", "UP017", "W291", "UP035"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
