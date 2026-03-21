@@ -7,8 +7,9 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ffmpeg wget unzip && \
     rm -rf /var/lib/apt/lists/*
 
-# Models are downloaded beforehand and copied to the container
-COPY models_vosk /app/models_vosk
+# Models are downloaded if not present
+COPY download_models.py /app/
+RUN python /app/download_models.py
 
 # Set pip env to avoid memory issues and timeouts
 ENV PIP_NO_CACHE_DIR=1 \
