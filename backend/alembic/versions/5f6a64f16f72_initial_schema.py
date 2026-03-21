@@ -54,7 +54,7 @@ def upgrade() -> None:
         sa.Column('lines_count', sa.Integer(), nullable=False),
         sa.Column('themes', postgresql.JSONB(astext_type=sa.Text()), server_default='[]', nullable=False),
         sa.Column('era', sa.String(length=50), nullable=True),
-        sa.Column('embedding', sa.NullType(), nullable=True), # Will fix with raw SQL below for pgvector
+        sa.Column('embedding', sa.Text(), nullable=True), # Will fix with raw SQL below for pgvector
         sa.PrimaryKeyConstraint('id')
     )
     # Add vector column using raw SQL to avoid import issues in migration environment if pgvector is missing
