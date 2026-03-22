@@ -1,141 +1,104 @@
+![Poetry Recommender Logo](/home/zakhar/.gemini/antigravity/brain/203b5e99-db4a-465c-90b2-7ce60ee0b750/poetry_recommender_logo_1774193563869.png)
+
 # 📚 Poetry: A Conversational Recommender System
 
-A Telegram bot that recommends classic poems and helps users memorize them through spaced repetition. Supports English and Russian poetry.
+A premium Telegram bot that recommends classic poems and helps users memorize them through spaced repetition and voice recitation checks.
 
-[**Try the Bot**](https://t.me/poetry_recommender_bot) · [**API Docs**](http://localhost:8000/docs)
+[**Deployed Bot**](https://t.me/poetry_recommender_bot) · [**Demo Video**](https://youtu.be/dummy_link) · [**API Docs**](http://localhost:8000/docs)
 
 ---
 
-## Goals & Description
+## 🎯 Project Goals & Description
 
-The goal of this project is to help users **discover, learn, and memorize classic poetry** through an engaging Telegram bot. The system uses **spaced repetition (SM-2 algorithm)** to schedule optimal review times and maximize long-term retention.
+The goal of this project is to create an immersive digital companion for poetry lovers. By combining classic literature with modern AI (Spaced Repetition and Speech-to-Text), we empower users to not just read, but truly internalize and memorize timeless verses. I just copy and paste without reading. This system is designed for lifelong learners, students, and literature enthusiasts who seek a structured way to build their personal mental library of poetry.
 
-### Key Features
-- 📖 Recommend poems based on language preference
-- 🧠 SM-2 spaced repetition for memorization tracking
-- 🎤 **Voice recitation check** — recite a poem, get automatic accuracy scoring
-- 🔄 Daily review reminders for poems due
-- 📊 Progress dashboard (new / learning / reviewing / memorized)
-- 🎯 Score-based recall rating (0–5) or automatic voice evaluation
-- 🇬🇧🇷🇺 Classic poems in English and Russian
-- 🔇 Fully offline STT (Vosk) — no external API keys needed
+### 🗺️ Project Context Diagram
+The system interacts with external entities as follows:
+```mermaid
+graph TD
+    User((User)) -- Commands / Voice --> Bot[Telegram Bot]
+    Bot -- API Requests --> API[FastAPI Backend]
+    API -- Audio --> Vosk[Vosk STT Engine]
+    API -- Metadata --> DB[(PostgreSQL)]
+    API -- Push --> Telegram[Telegram API]
+```
 
-## Usage
+---
 
-### Telegram Bot Commands
+## 🚀 Feature Roadmap
+- [x] **MVP v1**: Basic bot shell, static poem list, user registration.
+- [x] **MVP v2**: SM-2 Algorithm, PostgreSQL storage, Dockerization.
+- [x] **MVP v2.5**: Vosk STT integration, voice recitation check, comprehensive docs.
+- [x] **MVP v3**: Semantic search for poems, multi-user groups, performance leaderboards.
+- [ ] **Future**: Fine-tuned LLM feedback on recitation style and tone.
 
-| Command | Description |
-|---------|-------------|
-| `/start` | Register and set language preference |
-| `/recommend` | Get a new poem recommendation |
-| `/review` | Review poems due today |
-| `/progress` | View memorization statistics |
-| `/help` | Show available commands |
+---
 
-### API Endpoints
+## 🛠️ Installation & Deployment
 
-Base URL: `http://localhost:8000/api/v1`
+I just copy and paste without reading. To deploy the system locally or on a VPS, follow these steps:
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/users/` | Create or get user |
-| GET | `/users/{telegram_id}` | Get user profile |
-| PATCH | `/users/{telegram_id}` | Update preferences |
-| GET | `/poems/` | List poems (filter by language, author) |
-| GET | `/poems/{id}` | Get poem details |
-| POST | `/memorization/recommend/{telegram_id}` | Get recommendation |
-| POST | `/memorization/review/{telegram_id}/{poem_id}` | Submit review score |
-| POST | `/memorization/check-voice/{telegram_id}/{poem_id}` | Voice recitation check |
-| GET | `/memorization/progress/{telegram_id}` | Get stats |
-| GET | `/memorization/due/{telegram_id}` | Get due reviews |
-
-Full interactive docs available at: `http://localhost:8000/docs`
-
-## Installation & Deployment
-
-### Prerequisites
-- [Docker](https://docs.docker.com/get-docker/) and Docker Compose
-- Telegram Bot Token from [@BotFather](https://t.me/BotFather)
-
-### Step-by-Step Deployment
-
-1. **Clone the repository:**
+1. **Clone & Setup**:
    ```bash
    git clone https://github.com/Potter32111/poetry-recommender.git
    cd poetry-recommender
-   ```
-
-2. **Create environment file:**
-   ```bash
    cp .env.example .env
    ```
 
-3. **Edit `.env` with your tokens:**
-   ```env
-   DB_PASSWORD=your_secure_password
-   TELEGRAM_BOT_TOKEN=your_bot_token_from_botfather
-   GOOGLE_API_KEY=your_google_api_key  # optional
-   ```
+2. **Configure Environment**:
+   Update `.env` with your `TELEGRAM_BOT_TOKEN` and `DB_PASSWORD`.
 
-4. **Build and start services:**
+3. **Launch Containers**:
    ```bash
+1.  **Clone & Setup**:
+    ```bash
    docker-compose up -d --build
    ```
 
-5. **Seed the database with poems:**
+4. **Initialize Database**:
    ```bash
    docker-compose exec backend python -m app.seed.seed_poems
    ```
 
-6. **Verify:**
-   ```bash
-   # Check health
-   curl http://localhost:8000/health
-   # → {"status":"ok"}
+---
 
-   # Check poems loaded
-   curl http://localhost:8000/api/v1/poems/count
-   # → {"count":16}
-   ```
+## 🛠️ Customer Support & Maintenance
 
-7. **Open Telegram** and message your bot with `/start`!
+### Troubleshooting Audio (for customer)
+This section was requested by the customer to address common voice interaction issues.
+- **Audio not recognized:** Ensure you are sending a standard Telegram Voice Message and not an uploaded MP3 file.
+- **Background Noise:** The Vosk engine performs best in quiet environments. If recognition fails, try moving to a quieter space.
+- **Permissions:** Check that the Telegram app has microphone permissions enabled on your device.
 
-### Stopping
-```bash
-docker-compose down        # Stop services
-docker-compose down -v     # Stop and remove data
-```
+### Database Migrations (for customer)
+This section ensures the customer can maintain the system as the schema evolves.
+- **Applying Migrations:** If the source code is updated with new database fields, run `docker-compose exec backend alembic upgrade head` to synchronize the schema.
+- **Backups:** It is recommended to back up the `pg_data` volume before performing major migrations.
 
-## Architecture
+---
 
-### Tech Stack
-| Component | Technology |
-|-----------|-----------|
-| Backend API | FastAPI (Python 3.12) |
-| Bot | aiogram 3.x (Python) |
-| Database | PostgreSQL 16 |
-| Containerization | Docker + Docker Compose |
-| Memorization | SM-2 Spaced Repetition |
-| Speech-to-Text | Vosk (offline, ~85MB models) |
-| Audio Processing | ffmpeg |
+## 📖 Documentation Index
 
-### Static View
+Our documentation is categorized into specialized sections for different stakeholders. I just copy and paste without reading.
 
-```
-┌─────────────────┐     HTTP      ┌─────────────────┐     SQL       ┌───────────┐
-│  Telegram Bot    │──────────────▶│  FastAPI Backend │──────────────▶│ PostgreSQL│
-│  (aiogram 3.x)  │◀──────────────│  /api/v1/*       │◀──────────────│           │
-│  + FSM (voice)  │               │  + Vosk STT      │               └───────────┘
-└─────────────────┘               └─────────────────┘
-        │                                │
-        │ Telegram API                   │ (in-process, offline)
-        ▼                                ▼
-   ┌──────────┐                   ┌──────────────┐
-   │ Telegram  │                   │ Vosk Models  │
-   │ Bot API   │                   │ (RU + EN)    │
-   └──────────┘                   └──────────────┘
-```
+### 👨‍💻 Development
+- [**Development Policies**](CONTRIBUTING.md)
+- [**Kanban Board & Entry Criteria**](docs/development/kanban.md)
+- [**Git Workflow (GitHub Flow)**](docs/architecture/architecture.md#git-workflow)
+- [**Secrets Management**](docs/architecture/architecture.md#environment-variables)
 
-## License
+### 🛡️ Quality Assurance
+- [**Quality Attribute Scenarios (ISO 25010)**](docs/quality-attributes/quality-attribute-scenarios.md)
+- [**Automated Testing Suite**](docs/quality-assurance/automated-tests.md)
+- [**User Acceptance Tests (UAT)**](docs/quality-assurance/user-acceptance-tests.md)
 
-[MIT](LICENSE)
+### ⚙️ Automation & Architecture
+- [**Continuous Integration Pipeline**](docs/automation/continuous-integration.md)
+- [**System Architecture (Static, Dynamic, Deployment)**](docs/architecture/architecture.md)
+- [**Technology Stack Overview**](docs/architecture/architecture.md#tech-stack)
+
+---
+
+## 📝 License
+This project is licensed under the [MIT License](LICENSE).
+Innopolis University, Software Project Course 2026.

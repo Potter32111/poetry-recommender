@@ -69,6 +69,45 @@ async def cmd_start(message: Message) -> None:
     )
 
 
+@router.message(Command("leaderboard"))
+async def cmd_leaderboard(message: Message) -> None:
+    """Handle /leaderboard — show the top 10 users."""
+    if not message.from_user:
+        return
+
+    try:
+        users = await api.get_leaderboard()
+    except Exception as e:
+        logger.error(f"Failed to fetch leaderboard: {e}")
+        await message.answer("❌ Failed to load leaderboard.")
+        return
+
+    if not users:
+        await message.answer("🏆 The leaderboard is currently empty.")
+        return
+
+    text = "🏆 **Global Leaderboard** 🏆\n\n"
+    for i, user in enumerate(users):
+        rank = i + 1
+        if rank == 1:
+            emoji = "🥇"
+        elif rank == 2:
+            emoji = "🥈"
+        elif rank == 3:
+            emoji = "🥉"
+        else:
+            emoji = f"{rank}."
+            
+        name = user.get("first_name") or f"User {user.get('telegram_id')}"
+        level = user.get("level", 1)
+        xp = user.get("xp", 0)
+        streak = user.get("streak", 0)
+        
+        text += f"{emoji} **{name}** - Lvl {level} ({xp} XP) 🔥{streak}\n"
+
+    await message.answer(text, parse_mode="Markdown")
+
+
 # ─── Reply Keyboard Handlers ────────────────────────────────
 
 @router.message(lambda msg: msg.text in [t("btn_new", "ru"), t("btn_new", "en")])

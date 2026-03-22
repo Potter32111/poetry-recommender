@@ -30,7 +30,7 @@ async def main() -> None:
     from app.scheduler import process_daily_notifications
 
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(process_daily_notifications, "cron", hour=10, minute=0, args=[bot], id="daily_notifications")
+    scheduler.add_job(process_daily_notifications, "cron", minute=0, args=[bot], id="hourly_notifications")
     scheduler.start()
 
     logger.info("Starting Poetry Recommender Bot with APScheduler...")

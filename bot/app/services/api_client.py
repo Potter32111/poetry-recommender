@@ -27,6 +27,10 @@ class APIClient:
     async def get_user(self, telegram_id: int):
         return await self._request("GET", f"/api/v1/users/{telegram_id}")
 
+    async def get_leaderboard(self):
+        """Fetch the top 10 users for the leaderboard."""
+        return await self._request("GET", "/api/v1/users/leaderboard")
+
     async def update_user(self, telegram_id: int, **kwargs):
         return await self._request("PATCH", f"/api/v1/users/{telegram_id}", json=kwargs)
 

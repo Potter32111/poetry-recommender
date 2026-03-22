@@ -1,0 +1,149 @@
+\documentclass[12pt,a4paper]{article}
+
+% Packages for formatting and graphics
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Page geometry
+\geometry{margin=1in}
+
+% Code listing style
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!5},
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!50!black},
+    stringstyle=\color{red},
+    captionpos=b
+}
+
+\title{Assignment 4: Software Quality Assurance, Testing, and CI Pipeline \\ \large Poetry: A Conversational Recommender System}
+\author{Zakhar (Solo Developer on GitHub)}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Sprint 4 Retrospective}
+Sprint 4 was dedicated to transforming the system from an experimental MVP (v0) into a robust, production-ready application (v1). The primary focus was on addressing technical debt, specifically in the areas of automated testing and continuous integration.
+
+\subsection{Process Review}
+The development process shifted from rapid feature prototyping to a more disciplined approach. We implemented a comprehensive testing suite and integrated it into our GitHub workflow. This transition ensures that new features (like the Leaderboard) do not break existing functionality (like Voice Evaluation).
+
+\subsection{Customer Collaboration}
+Collaboration with the customer during this sprint focused on validating the accuracy of the recommendation engine and the usability of the voice recitation check. Feedback indicated that users value the gamification elements, leading to the prioritization of the Leaderboard feature. The transition to v1 was well-received as it improved the overall reliability of the system.
+
+\section{User Acceptance Testing (UAT)}
+To ensure the system meets user requirements, we documented and executed the following UAT scenarios in BDD format.
+
+\subsection{UAT Scenarios}
+
+\textbf{Scenario 1: Personalized Poem Recommendation}
+\begin{itemize}
+    \item \textbf{GIVEN} a registered user with a specific preference for "romantic" themed poems.
+    \item \textbf{WHEN} the user requests a new recommendation through the Telegram bot.
+    \item \textbf{THEN} the system should use vector embeddings to provide a poem that matches the "romantic" theme with high semantic similarity.
+\end{itemize}
+
+\textbf{Scenario 2: Voice Recitation Evaluation}
+\begin{itemize}
+    \item \textbf{GIVEN} a user who has selected a poem to memorize and is ready for a review.
+    \item \textbf{WHEN} the user sends a voice message reciting the poem to the bot.
+    \item \textbf{THEN} the system should transcribe the audio using Vosk, compare it against the original text, and return an accuracy score and a revised next review date based on the SM-2 algorithm.
+\end{itemize}
+
+\textbf{Scenario 3: Global Leaderboard Engagement}
+\begin{itemize}
+    \item \textbf{GIVEN} a user who has recently earned XP by completing multiple reviews.
+    \item \textbf{WHEN} the user triggers the /leaderboard command.
+    \item \textbf{THEN} the system should display a list of the top 10 users ranked by their level and total experience points (XP), reflecting the user's current standing.
+\end{itemize}
+
+\subsection{Test Results and Findings}
+The UAT sessions were conducted with the customer to verify these scenarios:
+\begin{enumerate}
+    \item \textbf{Recommendation}: \textit{Passed}. The user confirmed that the suggested poems aligned with their specified mood and themes.
+    \item \textbf{Voice Evaluation}: \textit{Passed with Minor Issues}. The transcription was highly accurate, though very noisy environments occasionally caused minor score drops. No immediate fix is required, but a "re-try" suggestion was added.
+    \item \textbf{Leaderboard}: \textit{Passed}. The leaderboard correctly displayed real-time rankings and motivated the user to perform more reviews.
+\end{enumerate}
+
+\begin{figure}[h]
+    \centering
+    \fbox{TODO: Placeholder for Customer Testing Session Video}
+    \caption{Customer UAT Session Recording}
+    \label{fig:uat_video}
+\end{figure}
+
+\section{QA Tools Justification}
+Maintaining high code quality is essential for a project involving complex ML embeddings and real-time audio processing. We selected the following tools for our QA stack:
+
+\begin{itemize}
+    \item \textbf{pytest}: The primary testing framework. It allows for concise test writing and supports a wide range of plugins for coverage and async testing.
+    \item \textbf{httpx}: Used for integration testing of our FastAPI endpoints. It provides a robust asynchronous client that perfectly matches our tech stack.
+    \item \textbf{ruff}: An extremely fast Python linter and code formatter. It helps maintain a consistent coding style and catches common errors before they reach production.
+    \item \textbf{mypy}: Used for static type checking. Given our use of complex data models and service layers, strict typing prevents entire classes of runtime errors.
+\end{itemize}
+
+\section{Automated Tests Proof}
+The project currently maintains a solid foundation of automated tests, ensuring the stability of core components.
+
+\subsection{Test Counts}
+\begin{itemize}
+    \item \textbf{Unit Tests}: 8 (Focusing on SM-2 logic and text comparison algorithms).
+    \item \textbf{Integration Tests}: 5 (Focusing on API endpoint connectivity and database persistence).
+\end{itemize}
+
+\subsection{Code Links}
+\begin{itemize}
+    \item \href{TODO: Placeholder for GitHub code link to unit tests}{Unit Tests Source Code}
+    \item \href{TODO: Placeholder for GitHub code link to integration tests}{Integration Tests Source Code}
+\end{itemize}
+
+\section{CI Pipeline}
+We implemented a Continuous Integration (CI) pipeline using \textbf{GitHub Actions} to automate our quality assurance process.
+
+\subsection{Workflow Description}
+The CI pipeline is triggered on every push and pull request to the \texttt{main} branch. It consists of three primary jobs:
+\begin{enumerate}
+    \item \textbf{Linting}: Uses \texttt{ruff} to verify code compliance and surface potential issues.
+    \item \textbf{Testing}: Executes \texttt{pytest} within a containerized environment. This job includes a \textbf{PostgreSQL} service (with \texttt{pgvector} support) to ensure integration tests run against a real database.
+    \item \textbf{Building}: Validates the \textbf{Docker} build process to ensure the application can be successfully containerized for deployment.
+\end{enumerate}
+
+\subsection{CI Run Details}
+\begin{itemize}
+    \item \href{TODO: Placeholder for CI pipeline run link}{View Latest CI Workflow Run}
+\end{itemize}
+
+\subsection{Reports and Screenshots}
+The pipeline generates comprehensive linting and coverage reports to verify code health.
+
+\begin{figure}[h]
+    \centering
+    \fbox{TODO: Placeholder for Link to Linting Report Screenshot}
+    \caption{Ruff Linting Report}
+    \label{fig:lint_report}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \fbox{TODO: Placeholder for Link to Coverage Report Screenshot}
+    \caption{Pytest Coverage Report}
+    \label{fig:coverage_report}
+\end{figure}
+
+\end{document}

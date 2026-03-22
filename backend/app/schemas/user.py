@@ -32,3 +32,13 @@ class UserResponse(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class LeaderboardUser(BaseModel):
+    telegram_id: int
+    first_name: str | None
+    level: int
+    xp: int
+    streak: int
+
+    model_config = {"from_attributes": True}

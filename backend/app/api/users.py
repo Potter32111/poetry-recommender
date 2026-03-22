@@ -5,9 +5,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from typing import List
+
 from app.database import get_db
 from app.models.user import User
-from app.schemas.user import UserCreate, UserUpdate, UserResponse
+from app.schemas.user import UserCreate, UserUpdate, UserResponse, LeaderboardUser
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -31,6 +33,15 @@ async def create_or_get_user(data: UserCreate, db: AsyncSession = Depends(get_db
     await db.commit()
     await db.refresh(user)
     return user
+
+
+@router.get("/leaderboard", response_model=List[LeaderboardUser])
+async def get_leaderboard(db: AsyncSession = Depends(get_db)):
+    """Get top 10 users for the leaderboard."""
+    query = select(User).order_by(User.level.desc(), User.xp.desc()).limit(10)
+    result = await db.execute(query)
+    users = result.scalars().all()
+    return list(users)
 
 
 @router.get("/{telegram_id}", response_model=UserResponse)

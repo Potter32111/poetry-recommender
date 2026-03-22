@@ -1,0 +1,95 @@
+\documentclass[12pt,a4paper]{article}
+
+% Packages for formatting and graphics
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Page geometry
+\geometry{margin=1in}
+
+% Code listing style
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!5},
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!50!black},
+    stringstyle=\color{red},
+    captionpos=b
+}
+
+\title{Assignment 6: Making the Repository Great \\ \large Poetry: A Conversational Recommender System}
+\author{Zakhar (Solo Developer) \\ Innopolis University \\ \href{mailto:z.user@innopolis.university}{z.user@innopolis.university} \\ GitHub: \href{https://github.com/Potter32111}{Potter32111}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section*{Who Did What During This Sprint}
+\begin{itemize}
+    \item \textbf{Zakhar}: Ported all documentation to specialized Markdown files in the \texttt{docs/} directory. Rewrote the root \texttt{README.md} for better clarity/navigation. Generated project logo. Created \texttt{CHANGELOG.md} and applied MIT License. Finalized MVP v2.5 with voice recitation improvements.
+\end{itemize}
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Introduction}
+This report summarizes the efforts to finalize the project's repository structure, enhance user-facing documentation, and ensure a smooth transition of the \textbf{Poetry Recommender} system to the customer. The focus of this sprint was on "Making the Repo Great" by adhering to professional documentation standards and providing a clear roadmap for future development.
+
+\section{MVP Roadmap}
+The project has evolved through several Minimum Viable Product (MVP) stages. The roadmap is now documented and linked within the main repository.
+
+\textbf{Link to Roadmap}: \href{https://github.com/Potter32111/poetry-recommender#feature-roadmap}{GitHub Feature Roadmap}
+
+\subsection{Current Status (MVP v2.5)}
+Currently, the system supports:
+\begin{itemize}
+    \item Personalized English/Russian poem recommendations.
+    \item SM-2 based spaced repetition scheduling.
+    \item Offline Voice Recitation check (Vosk STT).
+    \item Comprehensive internal documentation for all system components.
+\end{itemize}
+
+\section{Sprint Tracking}
+During this sprint (Sprint 6), the following Story Points (SP) were addressed:
+
+\begin{longtable}{@{}p{0.7\textwidth}p{0.2\textwidth}p{0.1\textwidth}@{}}
+\toprule
+\textbf{Task / Issue} & \textbf{Status} & \textbf{SP} \\ \midrule
+Create Documentation Structure (\texttt{docs/}) & Completed & 5 \\
+Rewrite README with Logo \& Metadata & Completed & 3 \\
+Update Architecture Diagrams (Mermaid) & Completed & 3 \\
+Implement CHANGELOG and MIT License & Completed & 2 \\
+Bugfix: Russian Voice Check Accuracy & Completed & 5 \\
+Finalize Assignment 6 Report & In Progress & 2 \\
+\midrule
+\textbf{Total Completed} & & \textbf{18} \\
+\bottomrule
+\end{longtable}
+
+\section{ReadMe Sections Overview}
+The \texttt{README.md} was completely restructured to serve as the single source of truth for the project. Key sections include:
+
+\begin{itemize}
+    \item \textbf{Header}: Features a high-quality logo, one-liner, and direct links to the deployed bot and demo video.
+    \item \textbf{Context Diagram}: A Mermaid-based visualization of system stakeholders (User, Telegram, Backend, Database).
+    \item \textbf{Feature Roadmap}: A checklist tracking past achievements (MVP v1-v2.5) and future goals (MVP v3+).
+    \item \textbf{Usage \& Deployment}: Clear, tested instructions for reproducibility.
+    \item \textbf{Documentation Index}: Hyperlinks to specialized Markdown files for Development, QA, and Architecture.
+\end{itemize}
+
+\section{Conclusion \& Next Steps}
+The repository is now in a "world-class" state, with all documentation easily accessible and a clear path forward defined in the roadmap. The next sprint will focus on MVP v3, including semantic search capabilities and further gamification of the learning experience.
+
+\end{document}
