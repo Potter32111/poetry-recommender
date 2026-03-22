@@ -1,4 +1,4 @@
-![Poetry Recommender Logo](/home/zakhar/.gemini/antigravity/brain/203b5e99-db4a-465c-90b2-7ce60ee0b750/poetry_recommender_logo_1774193563869.png)
+![Poetry Recommender Logo](assets/logo/poetry_recommender_logo.png)
 
 # 📚 Poetry: A Conversational Recommender System
 
