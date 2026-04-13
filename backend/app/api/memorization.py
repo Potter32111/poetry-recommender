@@ -1,10 +1,11 @@
 """Memorization & recommendation API endpoints."""
 
+import logging
 import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -17,6 +18,11 @@ from app.schemas.voice import VoiceCheckResponse
 from app.services.spaced_rep import calculate_sm2
 from app.services.recommender import get_poems_due_for_review, recommend_new_poem
 from app.services import voice_evaluator
+
+logger = logging.getLogger(__name__)
+
+_ALLOWED_CONTENT_TYPES = {"audio/", "application/octet-stream", "video/ogg"}
+_MAX_AUDIO_SIZE = 10 * 1024 * 1024  # 10 MB
 
 def _update_user_gamification(user: User, xp_gain: int):
     """Update user XP, level, and streak based on activity."""
@@ -87,7 +93,13 @@ async def review_poem(
     result = await db.execute(query)
     mem = result.scalar_one_or_none()
     if not mem:
-        raise HTTPException(status_code=404, detail="Memorization record not found")
+        # Auto-create memorization record (user reviewing a poem they got via recommendations)
+        poem_check = await db.execute(select(Poem).where(Poem.id == poem_id))
+        if not poem_check.scalar_one_or_none():
+            raise HTTPException(status_code=404, detail="Poem not found")
+        mem = Memorization(user_id=user.id, poem_id=poem_id, status="new")
+        db.add(mem)
+        await db.flush()
 
     # Calculate SM-2
     sm2 = calculate_sm2(
@@ -149,20 +161,33 @@ async def get_all_due_reviews(db: AsyncSession = Depends(get_db)):
         .distinct()
     )
     result = await db.execute(query)
-    due_user_ids = result.scalars().all()
+    due_user_ids = list(result.scalars().all())
 
     if not due_user_ids:
         return []
 
-    # Get their telegram_ids
-    user_query = select(User.telegram_id, User.ui_language, User.notification_time).where(User.id.in_(due_user_ids))
+    # Count due poems per user
+    due_counts_q = (
+        select(Memorization.user_id, func.count(Memorization.id).label("due_count"))
+        .where(Memorization.next_review_at <= now)
+        .group_by(Memorization.user_id)
+    )
+    due_counts_result = await db.execute(due_counts_q)
+    due_map = {row.user_id: row.due_count for row in due_counts_result}
+
+    # Get their telegram_ids, ui_language, notification_time, streak
+    user_query = select(
+        User.id, User.telegram_id, User.ui_language, User.notification_time, User.streak
+    ).where(User.id.in_(due_user_ids))
     user_result = await db.execute(user_query)
-    
+
     users_with_due = [
         {
             "telegram_id": row.telegram_id,
             "ui_language": row.ui_language,
-            "notification_time": row.notification_time
+            "notification_time": row.notification_time,
+            "streak": row.streak,
+            "due_count": due_map.get(row.id, 0),
         }
         for row in user_result
     ]
@@ -201,12 +226,34 @@ async def check_voice(
     mem_result = await db.execute(mem_query)
     mem = mem_result.scalar_one_or_none()
     if not mem:
-        mem = Memorization(user_id=user.id, poem_id=poem.id, status="new")
+        # Auto-create memorization record (user reviewing a poem they got via recommendations)
+        poem_check = await db.execute(select(Poem).where(Poem.id == poem_id))
+        if not poem_check.scalar_one_or_none():
+            raise HTTPException(status_code=404, detail="Poem not found")
+        mem = Memorization(user_id=user.id, poem_id=poem_id, status="new")
         db.add(mem)
         await db.flush()
 
-    # Evaluate voice
+    # Validate audio upload
+    content_type = audio.content_type or ""
+    if not (
+        content_type.startswith("audio/")
+        or content_type == "application/octet-stream"
+        or content_type == "video/ogg"
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid content type '{content_type}'. Expected audio file.",
+        )
+
     audio_bytes = await audio.read()
+    if len(audio_bytes) > _MAX_AUDIO_SIZE:
+        raise HTTPException(
+            status_code=413,
+            detail="Audio file too large. Maximum size is 10 MB.",
+        )
+
+    # Evaluate voice
     evaluation = await voice_evaluator.evaluate(audio_bytes, poem.text, poem.language)
 
     # Update SM-2
