@@ -31,6 +31,8 @@ async def cb_recite(callback: CallbackQuery, state: FSMContext) -> None:
 
     poem_id = callback.data.replace("recite_", "")
     lang = await get_user_lang(callback.from_user.id)
+    await state.set_state(ReciteStates.waiting_voice)
+    await state.update_data(poem_id=poem_id)
     await callback.message.answer(
         t("msg_recite_prompt", lang),
         parse_mode="Markdown",

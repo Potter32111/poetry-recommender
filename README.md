@@ -50,8 +50,6 @@ I just copy and paste without reading. To deploy the system locally or on a VPS,
 
 3. **Launch Containers**:
    ```bash
-1.  **Clone & Setup**:
-    ```bash
    docker-compose up -d --build
    ```
 

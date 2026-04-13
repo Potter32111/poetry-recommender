@@ -45,6 +45,25 @@ read_pdfs.py
 assignments_output.txt
 Assignment*.pdf
 
+# Debug/scratch files
+*_logs*.txt
+debug*.txt
+latest_*.json
+runs*.json
+test_*.json
+test_*.py
+!backend/tests/test_*.py
+*.html
+fix_db.py
+setup_db.py
+background_build.py
+output.txt
+result.txt
+res.txt
+alembic_error.txt
+check.json
+jobs.json
+
 # Agent config
 .agent/
 .gemini/
