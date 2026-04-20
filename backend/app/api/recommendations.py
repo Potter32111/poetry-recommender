@@ -180,57 +180,53 @@ async def get_recommendations(
         if exclude_ids:
             base_query = base_query.where(Poem.id.notin_(exclude_ids))
 
-        # Apply Length Filter
-        if length == "short":
-            base_query = base_query.where(Poem.lines_count <= 12)
-        elif length == "medium":
-            base_query = base_query.where(Poem.lines_count.between(13, 30))
-        elif length == "long":
-            base_query = base_query.where(Poem.lines_count > 30)
-
-        # Apply Era Filter
-        if era and era in ERA_MAPPING:
-            base_query = base_query.where(
-                Poem.era.ilike(f"%{era.replace('_', ' ')}%")
-            )
-
-        # Apply Author Filter
-        if author:
-            base_query = base_query.where(Poem.author.ilike(f"%{author}%"))
-
-        # Apply difficulty progression as soft preference
-        difficulty_query = base_query
-        if experience == "beginner":
-            difficulty_query = base_query.where(Poem.difficulty <= 2)
-            if not user_specified_length:
-                difficulty_query = difficulty_query.where(Poem.lines_count <= 16)
-        elif experience == "intermediate":
-            difficulty_query = base_query.where(Poem.difficulty <= 3.5)
-            if not user_specified_length:
-                difficulty_query = difficulty_query.where(Poem.lines_count <= 30)
-
         pool_size = max(limit * 4, 10)
 
-        # Try difficulty-filtered first, fall back to unrestricted if not enough
-        if experience != "advanced":
-            rec_result = await db.execute(
-                difficulty_query.order_by("dist").limit(pool_size)
-            )
-            results = list(rec_result.all())
-            if len(results) < limit:
-                rec_result = await db.execute(
-                    base_query.order_by("dist").limit(pool_size)
-                )
-                results = list(rec_result.all())
-        else:
-            rec_result = await db.execute(
-                base_query.order_by("dist").limit(pool_size)
-            )
-            results = list(rec_result.all())
+        # Build filter chain ordered by priority — drop one filter at a time
+        # if the result set is empty (soft filters).
+        async def _query_with_filters(
+            apply_length: bool, apply_era: bool, apply_author: bool, apply_difficulty: bool
+        ) -> list:
+            q = base_query
+            if apply_length:
+                if length == "short":
+                    q = q.where(Poem.lines_count <= 12)
+                elif length == "medium":
+                    q = q.where(Poem.lines_count.between(13, 30))
+                elif length == "long":
+                    q = q.where(Poem.lines_count > 30)
+            if apply_era and era and era in ERA_MAPPING:
+                q = q.where(Poem.era.ilike(f"%{era.replace('_', ' ')}%"))
+            if apply_author and author:
+                q = q.where(Poem.author.ilike(f"%{author}%"))
+            if apply_difficulty:
+                if experience == "beginner":
+                    q = q.where(Poem.difficulty <= 2)
+                elif experience == "intermediate":
+                    q = q.where(Poem.difficulty <= 3.5)
+            r = await db.execute(q.order_by("dist").limit(pool_size))
+            return list(r.all())
 
-        # Distance threshold: if all candidates are too far, fall back to random
-        if results and all(r[1] > 1.5 for r in results):
-            logger.warning(f"All candidates dist > 1.5 for {telegram_id}, falling back to random")
+        # Try cascading: drop the most restrictive filters first if no results.
+        attempts = [
+            (True, True, True, experience != "advanced"),   # everything
+            (True, True, True, False),                       # drop difficulty
+            (True, True, False, False),                      # drop author
+            (True, False, False, False),                     # drop era
+            (False, False, False, False),                    # drop length too
+        ]
+        results: list = []
+        for apply_len, apply_era, apply_auth, apply_diff in attempts:
+            results = await _query_with_filters(apply_len, apply_era, apply_auth, apply_diff)
+            if len(results) >= limit:
+                break
+        if not results:
+            results = await _query_with_filters(False, False, False, False)
+
+        # Distance threshold: only drop results if everything is far apart AND
+        # we still have a comfortable pool size — otherwise keep what we have.
+        if results and len(results) >= limit and all(r[1] > 1.8 for r in results):
+            logger.warning(f"All candidates dist > 1.8 for {telegram_id}, falling back to random")
             results = []
 
         # Weighted sampling: closer matches get higher probability
@@ -261,20 +257,26 @@ async def get_recommendations(
         if exclude_ids:
             fb_query = fb_query.where(Poem.id.notin_(exclude_ids))
 
-        if length == "short":
-            fb_query = fb_query.where(Poem.lines_count <= 12)
-        elif length == "medium":
-            fb_query = fb_query.where(Poem.lines_count.between(13, 30))
-        elif length == "long":
-            fb_query = fb_query.where(Poem.lines_count > 30)
+        async def _try_random(apply_length: bool, apply_era: bool, apply_author: bool) -> list:
+            q = fb_query
+            if apply_length:
+                if length == "short":
+                    q = q.where(Poem.lines_count <= 12)
+                elif length == "medium":
+                    q = q.where(Poem.lines_count.between(13, 30))
+                elif length == "long":
+                    q = q.where(Poem.lines_count > 30)
+            if apply_era and era and era in ERA_MAPPING:
+                q = q.where(Poem.era.ilike(f"%{era.replace('_', ' ')}%"))
+            if apply_author and author:
+                q = q.where(Poem.author.ilike(f"%{author}%"))
+            r = await db.execute(q.order_by(func.random()).limit(limit))
+            return list(r.scalars().all())
 
-        if era and era in ERA_MAPPING:
-            fb_query = fb_query.where(Poem.era.ilike(f"%{era.replace('_', ' ')}%"))
-        if author:
-            fb_query = fb_query.where(Poem.author.ilike(f"%{author}%"))
-
-        fallback_result = await db.execute(fb_query.order_by(func.random()).limit(limit))
-        recommendations = list(fallback_result.scalars().all())
+        for combo in [(True, True, True), (True, True, False), (True, False, False), (False, False, False)]:
+            recommendations = await _try_random(*combo)
+            if recommendations:
+                break
 
     await db.commit()
 
