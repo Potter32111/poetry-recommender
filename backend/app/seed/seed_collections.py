@@ -15,22 +15,17 @@ logger = logging.getLogger(__name__)
 
 def _matches_filter(poem: Poem, filt: dict) -> bool:
     """Check if a poem matches the collection filter criteria."""
-    if "authors" in filt:
-        if not any(
-            kw.lower() in poem.author.lower() for kw in filt["authors"]
-        ):
-            return False
+    if "authors" in filt and not any(
+        kw.lower() in poem.author.lower() for kw in filt["authors"]
+    ):
+        return False
     if "themes" in filt:
         poem_themes = [t.lower() for t in (poem.themes or [])]
         if not any(kw.lower() in " ".join(poem_themes) for kw in filt["themes"]):
             return False
-    if "era" in filt:
-        if poem.era != filt["era"]:
-            return False
-    if "max_lines" in filt:
-        if poem.lines_count > filt["max_lines"]:
-            return False
-    return True
+    if "era" in filt and poem.era != filt["era"]:
+        return False
+    return not ("max_lines" in filt and poem.lines_count > filt["max_lines"])
 
 
 async def seed_collections() -> None:

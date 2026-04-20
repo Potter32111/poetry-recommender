@@ -155,11 +155,6 @@ def format_celebration(
 
     # Daily challenge
     if challenge_progress:
-        goal = _challenge_goal_text(
-            challenge_progress.get("goal_type", ""),
-            challenge_progress.get("goal_target", 1),
-            lang,
-        )
         line = t(
             "msg_celebration_challenge", lang,
             progress=challenge_progress.get("current_progress", 0),

@@ -81,12 +81,12 @@ def convert_ogg_to_wav(ogg_bytes: bytes) -> bytes:
         )
         with open(wav_path, "rb") as f:
             return f.read()
-    except subprocess.TimeoutExpired:
+    except subprocess.TimeoutExpired as exc:
         logger.error("FFmpeg timed out while converting audio")
-        raise RuntimeError("Audio conversion timed out")
+        raise RuntimeError("Audio conversion timed out") from exc
     except subprocess.CalledProcessError as e:
         logger.error("FFmpeg conversion failed: %s", e.stderr)
-        raise RuntimeError(f"Audio conversion failed: {e.stderr!r}")
+        raise RuntimeError(f"Audio conversion failed: {e.stderr!r}") from e
     finally:
         for p in (ogg_path, wav_path):
             try:
