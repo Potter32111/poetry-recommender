@@ -1482,30 +1482,6 @@ async def handle_voice_no_context(message: Message) -> None:
 
 
 # ─── Unknown Message Handler (registered LAST) ───────────────
-@router.message()
-async def handle_unknown(message: Message, state: FSMContext) -> None:
-    """Handle unrecognized messages with helpful suggestions."""
-    if not message.from_user:
-        return
-    lang = await get_user_lang(message.from_user.id)
-
-    if message.text:
-        # Poem-like text: multiple lines
-        if "\n" in message.text and message.text.count("\n") >= 2:
-            await message.answer(t("msg_unknown_poem", lang))
-            return
-        # Question
-        if "?" in message.text:
-            await message.answer(t("msg_unknown_question", lang))
-            return
-
-    # Default fallback
-    await message.answer(
-        t("msg_unknown_default", lang),
-        reply_markup=main_menu_keyboard(lang),
-    )
-
-
 # ─── Helpers ────────────────────────────────────────────────
 
 
