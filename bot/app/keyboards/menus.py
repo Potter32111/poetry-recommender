@@ -369,6 +369,18 @@ def finder_followup_keyboard(lang: str) -> InlineKeyboardMarkup:
     ])
 
 
+def freetext_followup_keyboard(lang: str) -> InlineKeyboardMarkup:
+    """Follow-up keyboard after a free-text chat search."""
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [
+            InlineKeyboardButton(text=t("btn_more_like_this", lang), callback_data="ft_more"),
+            InlineKeyboardButton(text=t("btn_surprise_me", lang), callback_data="ft_random"),
+        ],
+        [InlineKeyboardButton(text=t("btn_refine_query", lang), callback_data="ft_refine")],
+        [InlineKeyboardButton(text=t("btn_main_menu", lang), callback_data="menu_main")],
+    ])
+
+
 # ─── History Filter Keyboard ────────────────────────────────
 
 def history_filter_keyboard(lang: str, active: str = "all") -> InlineKeyboardMarkup:

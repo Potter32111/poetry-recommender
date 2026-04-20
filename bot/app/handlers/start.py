@@ -47,6 +47,7 @@ from app.keyboards.menus import (
     finder_author_keyboard,
     finder_confirm_keyboard,
     finder_followup_keyboard,
+    freetext_followup_keyboard,
     history_filter_keyboard,
     collections_list_keyboard,
     collection_pagination_keyboard,
@@ -1990,11 +1991,82 @@ async def handle_freetext_search(message: Message, state: FSMContext) -> None:
         text = text[:200]
     lang = await get_user_lang(message.from_user.id)
     logger.info(f"FREETEXT_SEARCH from {message.from_user.id}: {text!r}")
-    wait_msg = await message.answer(t("msg_analyzing", lang))
+    # Conversational acknowledgment quoting the user's request
+    safe_q = text.replace("{", "").replace("}", "")
+    wait_msg = await message.answer(t("msg_freetext_ack", lang, q=safe_q))
     try:
         await _send_recommendation(message, message.from_user.id, mood=text)
+        # Remember last query for "more like this"
+        try:
+            await state.update_data(last_freetext_mood=text)
+        except Exception:
+            pass
+        # Conversational follow-up with quick actions
+        try:
+            await message.answer(
+                t("msg_freetext_followup", lang),
+                reply_markup=freetext_followup_keyboard(lang),
+            )
+        except Exception:
+            pass
     finally:
         try:
             await wait_msg.delete()
         except Exception:
             pass
+
+
+# ─── Free-text follow-up callbacks ──────────────────────────
+@router.callback_query(F.data == "ft_more")
+async def cb_ft_more(callback: CallbackQuery, state: FSMContext) -> None:
+    if not callback.from_user or not callback.message:
+        return
+    lang = await get_user_lang(callback.from_user.id)
+    data = await state.get_data()
+    last_mood = data.get("last_freetext_mood")
+    await callback.answer()
+    if not last_mood:
+        await callback.message.answer(t("msg_freetext_refine", lang))
+        return
+    wait_msg = await callback.message.answer(t("msg_analyzing", lang))
+    try:
+        await _send_recommendation(callback.message, callback.from_user.id, mood=last_mood)
+        await callback.message.answer(
+            t("msg_freetext_followup", lang),
+            reply_markup=freetext_followup_keyboard(lang),
+        )
+    finally:
+        try:
+            await wait_msg.delete()
+        except Exception:
+            pass
+
+
+@router.callback_query(F.data == "ft_random")
+async def cb_ft_random(callback: CallbackQuery, state: FSMContext) -> None:
+    if not callback.from_user or not callback.message:
+        return
+    lang = await get_user_lang(callback.from_user.id)
+    await callback.answer()
+    wait_msg = await callback.message.answer(t("msg_analyzing", lang))
+    try:
+        await _send_recommendation(callback.message, callback.from_user.id, mood=None)
+        await callback.message.answer(
+            t("msg_freetext_followup", lang),
+            reply_markup=freetext_followup_keyboard(lang),
+        )
+    finally:
+        try:
+            await wait_msg.delete()
+        except Exception:
+            pass
+
+
+@router.callback_query(F.data == "ft_refine")
+async def cb_ft_refine(callback: CallbackQuery, state: FSMContext) -> None:
+    if not callback.from_user or not callback.message:
+        return
+    lang = await get_user_lang(callback.from_user.id)
+    await state.clear()
+    await callback.answer()
+    await callback.message.answer(t("msg_freetext_refine", lang))

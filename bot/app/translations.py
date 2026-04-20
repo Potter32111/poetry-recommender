@@ -162,6 +162,14 @@ texts = {
         "msg_unknown_question": "Попробуй /help, чтобы посмотреть доступные команды.",
         "msg_unknown_default": "Я лучше работаю с голосовыми сообщениями и кнопками меню! Попробуй /help 😊",
 
+        # Free-text chat dialog
+        "msg_freetext_ack": "💭 Понял: «{q}». Сейчас подберу что-нибудь подходящее…",
+        "msg_freetext_followup": "Как тебе? Хочешь ещё в этом духе или попробуем другое?",
+        "msg_freetext_refine": "✏️ Опиши, что хочется почитать — например «грустный стих про осень» или «что-то лёгкое и весёлое».",
+        "btn_more_like_this": "🔁 Ещё в этом духе",
+        "btn_surprise_me": "🎲 Удиви меня",
+        "btn_refine_query": "✏️ Уточнить запрос",
+
         # Recitation prompts & hints
         "msg_hints_penalty": "💡 Использовано подсказок: {count} (−{xp} XP)",
         "msg_type_prompt": "⌨️ Напиши стих по памяти:",
@@ -507,6 +515,14 @@ texts = {
         "msg_unknown_poem": "Looks like a poem! Try /recommend to find it.",
         "msg_unknown_question": "Try /help for available commands.",
         "msg_unknown_default": "I work best with voice messages and menu buttons! Try /help 😊",
+
+        # Free-text chat dialog
+        "msg_freetext_ack": "💭 Got it: \"{q}\". Searching for something fitting…",
+        "msg_freetext_followup": "How was it? Want more in the same mood, or something different?",
+        "msg_freetext_refine": "✏️ Describe what you'd like to read — e.g. \"a sad poem about autumn\" or \"something light and cheerful\".",
+        "btn_more_like_this": "🔁 More like this",
+        "btn_surprise_me": "🎲 Surprise me",
+        "btn_refine_query": "✏️ Refine query",
 
         # Recitation prompts & hints
         "msg_hints_penalty": "💡 Hints used: {count} (−{xp} XP)",
