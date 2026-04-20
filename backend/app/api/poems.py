@@ -68,6 +68,21 @@ async def create_poem(data: PoemCreate, db: AsyncSession = Depends(get_db)):
     await db.refresh(poem)
     return poem
 
+@router.get("/top-authors")
+async def top_authors(
+    limit: int = Query(6, le=50),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return the most-popular authors by poem count."""
+    result = await db.execute(
+        select(Poem.author, func.count(Poem.id).label("poem_count"))
+        .group_by(Poem.author)
+        .order_by(func.count(Poem.id).desc())
+        .limit(limit)
+    )
+    return [{"author": row.author, "poem_count": row.poem_count} for row in result.all()]
+
+
 @router.post("/parse", response_model=PoemResponse, status_code=201)
 async def parse_new_poem(request: ParseRequest):
     """Parse a poem from a given URL and add it to the database."""

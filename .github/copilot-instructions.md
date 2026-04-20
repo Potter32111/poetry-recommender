@@ -61,6 +61,13 @@ cd backend && mypy app
 | `bot/app/keyboards/` | Inline/reply keyboard builders |
 | `bot/app/states/` | FSM states for conversation flows |
 
+## AI Model & Subagents
+
+- **Model**: Always use `Claude Opus 4.6` for all agents and subagents.
+- **Subagents**: When delegating tasks via `runSubagent`, always specify `agentName: "swp-explore"`. The `swp-explore` agent is defined in `.github/agents/swp-explore.agent.md` and is pinned to `Claude Opus 4.6`.
+- Do NOT use any other model or unnamed subagents.
+- Do NOT use the built-in `explore` agent — it runs on a weaker model. Always use `swp-explore` instead.
+
 ## Documentation
 
 - [README.md](../README.md) — Deployment, features, troubleshooting

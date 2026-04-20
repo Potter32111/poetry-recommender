@@ -27,6 +27,7 @@ dependencies = [
     "beautifulsoup4>=4.12.3",
     "aiohttp>=3.9.3",
     "apscheduler>=3.10.4",
+    "gTTS>=2.5.0",
 ]
 
 [project.optional-dependencies]

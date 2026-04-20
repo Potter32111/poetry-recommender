@@ -31,13 +31,15 @@ MODEL_PATHS = {
 
 def get_vosk_model(language: str) -> Model:
     """Get or load the Vosk model for the given language."""
+    from fastapi import HTTPException
+
     lang = "ru" if language in ("ru", "both") else "en"
     if lang not in _models:
         model_path = MODEL_PATHS.get(lang)
         if not model_path or not os.path.isdir(model_path):
-            raise RuntimeError(
-                f"Vosk model not found for '{lang}' at {model_path}. "
-                "Make sure models are downloaded in the Docker image."
+            raise HTTPException(
+                status_code=503,
+                detail="Voice recognition temporarily unavailable",
             )
         logger.info("Loading Vosk model for '%s' from %s", lang, model_path)
         _models[lang] = Model(model_path)
@@ -46,8 +48,16 @@ def get_vosk_model(language: str) -> Model:
 
 # ─── Audio Conversion ───────────────────────────────────────
 
+MAX_AUDIO_SIZE = 10 * 1024 * 1024  # 10 MB
+
+
 def convert_ogg_to_wav(ogg_bytes: bytes) -> bytes:
     """Convert OGG/OGA audio to raw PCM 16kHz mono using ffmpeg."""
+    if len(ogg_bytes) > MAX_AUDIO_SIZE:
+        raise ValueError(
+            f"Audio file too large ({len(ogg_bytes)} bytes). Maximum is {MAX_AUDIO_SIZE} bytes."
+        )
+
     with tempfile.NamedTemporaryFile(suffix=".ogg", delete=False) as ogg_f:
         ogg_f.write(ogg_bytes)
         ogg_path = ogg_f.name
@@ -56,7 +66,7 @@ def convert_ogg_to_wav(ogg_bytes: bytes) -> bytes:
     wav_path = ogg_path.replace(".ogg", ".raw")
 
     try:
-        subprocess.run(
+        result = subprocess.run(
             [
                 "ffmpeg", "-y",
                 "-i", ogg_path,
@@ -71,6 +81,12 @@ def convert_ogg_to_wav(ogg_bytes: bytes) -> bytes:
         )
         with open(wav_path, "rb") as f:
             return f.read()
+    except subprocess.TimeoutExpired:
+        logger.error("FFmpeg timed out while converting audio")
+        raise RuntimeError("Audio conversion timed out")
+    except subprocess.CalledProcessError as e:
+        logger.error("FFmpeg conversion failed: %s", e.stderr)
+        raise RuntimeError(f"Audio conversion failed: {e.stderr!r}")
     finally:
         for p in (ogg_path, wav_path):
             try:
@@ -122,22 +138,42 @@ class EvaluationResult:
     missed_lines: list[str]
     feedback: str
     next_steps: str  # "repeat" | "read_again" | "next_stanza" | "memorized"
+    word_details: list[dict]  # [{"word": str, "status": "correct"|"missed"|"close", "similar_to": str|None}]
 
 
-def _accuracy_to_sm2(accuracy: float) -> int:
-    """Map accuracy percentage (0-100) to SM-2 score (0-5)."""
-    if accuracy < 20:
-        return 0
-    elif accuracy < 35:
-        return 1
-    elif accuracy < 50:
-        return 2
-    elif accuracy < 60:
-        return 3
-    elif accuracy < 75:
-        return 4
+def _accuracy_to_sm2(accuracy: float, method: str = "voice") -> int:
+    """Map accuracy percentage (0-100) to SM-2 score (0-5).
+
+    Voice thresholds are more lenient because Vosk small models
+    typically max out at 70-80% even for perfect recitation.
+    """
+    if method == "text":
+        if accuracy < 20:
+            return 0
+        elif accuracy < 35:
+            return 1
+        elif accuracy < 50:
+            return 2
+        elif accuracy < 60:
+            return 3
+        elif accuracy < 75:
+            return 4
+        else:
+            return 5
     else:
-        return 5
+        # Voice: shifted thresholds for Vosk STT inaccuracies
+        if accuracy < 15:
+            return 0
+        elif accuracy < 30:
+            return 1
+        elif accuracy < 45:
+            return 2
+        elif accuracy < 55:
+            return 3
+        elif accuracy < 70:
+            return 4
+        else:
+            return 5
 
 
 def _generate_feedback(accuracy: float, missed: list[str], language: str) -> tuple[str, str]:
@@ -207,7 +243,7 @@ EN_STOPWORDS = {
 }
 
 
-def compare_texts(transcribed: str, original: str, language: str) -> EvaluationResult:
+def compare_texts(transcribed: str, original: str, language: str, method: str = "voice") -> EvaluationResult:
     """Compare transcribed text with the original poem using fuzzy length-weighted word matching."""
     norm_transcribed = _normalize(transcribed)
     norm_original = _normalize(original)
@@ -218,6 +254,7 @@ def compare_texts(transcribed: str, original: str, language: str) -> EvaluationR
     # Calculate overall accuracy
     if not orig_words or not rec_words:
         accuracy = 0.0
+        word_details: list[dict] = []
     else:
         stopwords = EN_STOPWORDS if language == "en" else RU_STOPWORDS
         total_weight = 0.0
@@ -225,6 +262,7 @@ def compare_texts(transcribed: str, original: str, language: str) -> EvaluationR
         used_rec_indices = set()
         
         # Word-level fuzzy greedy matching with proportional sliding window
+        word_details: list[dict] = []
         for i, o_word in enumerate(orig_words):
             word_weight = max(1, len(o_word))
             if o_word in stopwords:
@@ -239,20 +277,38 @@ def compare_texts(transcribed: str, original: str, language: str) -> EvaluationR
             search_start = max(0, int((i/len(orig_words)) * len(rec_words)) - 15)
             search_end = min(len(rec_words), int((i/len(orig_words)) * len(rec_words)) + 25)
             
+            # Short words (<=3 chars) use stricter threshold to avoid false positives
+            threshold = 0.7 if len(o_word) <= 3 else 0.55
+            
             for j in range(search_start, search_end):
                 r_word = rec_words[j]
                 if j in used_rec_indices:
                     continue
                 
-                # difflib for slight misspellings (lower threshold 0.65 to catch Phonetic STT typos)
                 ratio = SequenceMatcher(None, o_word, r_word).ratio()
-                if ratio > 0.65 and ratio > best_ratio:
+                if ratio > threshold and ratio > best_ratio:
                     best_match_idx = j
                     best_ratio = ratio
                     
             if best_match_idx != -1:
                 used_rec_indices.add(best_match_idx)
                 matched_weight += (word_weight * best_ratio)
+                if best_ratio >= 0.99:
+                    status = "correct"
+                    similar_to = None
+                else:
+                    status = "close"
+                    similar_to = rec_words[best_match_idx]
+            else:
+                status = "missed"
+                similar_to = None
+            
+            if len(word_details) < 30:
+                word_details.append({
+                    "word": o_word,
+                    "status": status,
+                    "similar_to": similar_to,
+                })
                 
         accuracy = min(100.0, (matched_weight / total_weight) * 100.0) if total_weight > 0 else 0.0
 
@@ -291,7 +347,8 @@ def compare_texts(transcribed: str, original: str, language: str) -> EvaluationR
                 if j in used_line_rec_indices:
                     continue
                 ratio = SequenceMatcher(None, o_word, r_word).ratio()
-                if ratio > 0.65 and ratio > best_r:
+                line_threshold = 0.7 if len(o_word) <= 3 else 0.55
+                if ratio > line_threshold and ratio > best_r:
                     best_m = j
                     best_r = ratio
                     
@@ -306,7 +363,7 @@ def compare_texts(transcribed: str, original: str, language: str) -> EvaluationR
             
         cumulative_words += len(line_words)
 
-    sm2_score = _accuracy_to_sm2(accuracy)
+    sm2_score = _accuracy_to_sm2(accuracy, method=method)
     feedback, next_steps = _generate_feedback(accuracy, missed_lines, language)
 
     return EvaluationResult(
@@ -316,6 +373,7 @@ def compare_texts(transcribed: str, original: str, language: str) -> EvaluationR
         missed_lines=missed_lines,
         feedback=feedback,
         next_steps=next_steps,
+        word_details=word_details if orig_words and rec_words else [],
     )
 
 
@@ -335,6 +393,7 @@ async def evaluate(audio_bytes: bytes, poem_text: str, language: str) -> Evaluat
                 else "Could not recognize speech. Try recording again, speaking clearly without background noise."
             ),
             next_steps="repeat",
+            word_details=[],
         )
 
     return compare_texts(transcribed, poem_text, language)

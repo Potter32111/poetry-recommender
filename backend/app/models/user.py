@@ -28,6 +28,10 @@ class User(Base):
     last_activity_date: Mapped[datetime | None] = mapped_column(Date, nullable=True)
     ui_language: Mapped[str] = mapped_column(String(10), default="ru")
     notification_time: Mapped[str] = mapped_column(String(5), default="10:00")
+
+    # --- Streak freeze ---
+    streak_freezes_available: Mapped[int] = mapped_column(Integer, default=1)
+    last_freeze_regen: Mapped[datetime | None] = mapped_column(Date, nullable=True)
     
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
@@ -35,3 +39,6 @@ class User(Base):
     )
 
     memorizations = relationship("Memorization", back_populates="user", lazy="selectin")
+    favorites = relationship("Favorite", back_populates="user", lazy="selectin")
+    achievements = relationship("UserAchievement", back_populates="user", lazy="selectin")
+    daily_challenges = relationship("DailyChallenge", back_populates="user", lazy="selectin")

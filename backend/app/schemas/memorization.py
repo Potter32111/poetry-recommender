@@ -26,3 +26,20 @@ class MemorizationResponse(BaseModel):
     recommended_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class HistoryItem(BaseModel):
+    id: uuid.UUID
+    poem_id: uuid.UUID
+    status: str
+    repetitions: int
+    last_reviewed_at: datetime | None
+    accuracy_avg: float | None = None
+    poem: "PoemResponse | None" = None
+
+    model_config = {"from_attributes": True}
+
+
+from app.schemas.poem import PoemResponse  # noqa: E402
+
+HistoryItem.model_rebuild()

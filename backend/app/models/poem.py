@@ -33,3 +33,4 @@ class Poem(Base):
         embedding: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     memorizations: Mapped[list["Memorization"]] = relationship("Memorization", back_populates="poem", lazy="selectin")
+    favorites: Mapped[list["Favorite"]] = relationship("Favorite", back_populates="poem", lazy="selectin")

@@ -1,0 +1,384 @@
+{
+    "info": {
+        "name": "Poetry Recommender API",
+        "description": "Mock API collection for the Poetry Recommender system. All endpoints return realistic example responses.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8000",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "Users",
+            "item": [
+                {
+                    "name": "Register User",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"telegram_id\": 123456789,\n  \"username\": \"poetry_lover\",\n  \"first_name\": \"Zakhar\",\n  \"language_pref\": \"ru\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/users",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "201 Created",
+                            "status": "Created",
+                            "code": 201,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"telegram_id\": 123456789,\n  \"username\": \"poetry_lover\",\n  \"first_name\": \"Zakhar\",\n  \"language_pref\": \"ru\",\n  \"xp\": 0,\n  \"level\": 1,\n  \"streak\": 0,\n  \"created_at\": \"2026-03-01T12:00:00Z\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get User by Telegram ID",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/users/123456789",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users",
+                                "123456789"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "200 OK",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"telegram_id\": 123456789,\n  \"username\": \"poetry_lover\",\n  \"first_name\": \"Zakhar\",\n  \"language_pref\": \"ru\",\n  \"xp\": 450,\n  \"level\": 3,\n  \"streak\": 7,\n  \"created_at\": \"2026-03-01T12:00:00Z\",\n  \"updated_at\": \"2026-03-20T18:30:00Z\"\n}"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Poems",
+            "item": [
+                {
+                    "name": "Get Recommendation",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/poems/recommend/a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "poems",
+                                "recommend",
+                                "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "200 OK",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"id\": \"p001-uuid\",\n  \"title\": \"Я помню чудное мгновенье\",\n  \"author\": \"Александр Пушкин\",\n  \"text\": \"Я помню чудное мгновенье:\\nПередо мной явилась ты,\\nКак мимолетное виденье,\\nКак гений чистой красоты.\",\n  \"language\": \"ru\",\n  \"difficulty\": 0.4,\n  \"lines_count\": 4,\n  \"themes\": [\"love\", \"romance\", \"beauty\"]\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Search Poems",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/poems/search?q=pushkin&lang=ru",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "poems",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "q",
+                                    "value": "pushkin"
+                                },
+                                {
+                                    "key": "lang",
+                                    "value": "ru"
+                                }
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "200 OK",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"results\": [\n    {\n      \"id\": \"p001-uuid\",\n      \"title\": \"Я помню чудное мгновенье\",\n      \"author\": \"Александр Пушкин\",\n      \"difficulty\": 0.4\n    },\n    {\n      \"id\": \"p002-uuid\",\n      \"title\": \"Зимнее утро\",\n      \"author\": \"Александр Пушкин\",\n      \"difficulty\": 0.3\n    }\n  ],\n  \"total\": 2\n}"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Memorizations",
+            "item": [
+                {
+                    "name": "Add Poem to Learning List",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"user_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"poem_id\": \"p001-uuid\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/memorizations",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "memorizations"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "201 Created",
+                            "status": "Created",
+                            "code": 201,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"id\": \"m001-uuid\",\n  \"user_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"poem_id\": \"p001-uuid\",\n  \"status\": \"new\",\n  \"ease_factor\": 2.5,\n  \"interval_days\": 1,\n  \"repetitions\": 0,\n  \"next_review_at\": \"2026-03-21T12:00:00Z\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Due Reviews",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/memorizations/due/a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "memorizations",
+                                "due",
+                                "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "200 OK",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"due_items\": [\n    {\n      \"memorization_id\": \"m001-uuid\",\n      \"poem_title\": \"Я помню чудное мгновенье\",\n      \"poem_author\": \"Александр Пушкин\",\n      \"status\": \"learning\",\n      \"next_review_at\": \"2026-03-20T09:00:00Z\",\n      \"repetitions\": 2\n    }\n  ],\n  \"count\": 1\n}"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Reviews",
+            "item": [
+                {
+                    "name": "Submit Review",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"memorization_id\": \"m001-uuid\",\n  \"quality\": 4,\n  \"voice_accuracy\": 0.87\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/reviews",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "reviews"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "200 OK",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"memorization_id\": \"m001-uuid\",\n  \"new_status\": \"reviewing\",\n  \"ease_factor\": 2.6,\n  \"interval_days\": 6,\n  \"next_review_at\": \"2026-03-26T12:00:00Z\",\n  \"xp_earned\": 25,\n  \"user_total_xp\": 475,\n  \"user_level\": 3\n}"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Voice",
+            "item": [
+                {
+                    "name": "Evaluate Voice Recording",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "multipart/form-data"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "audio",
+                                    "type": "file",
+                                    "description": "OGG voice recording file"
+                                },
+                                {
+                                    "key": "poem_id",
+                                    "value": "p001-uuid",
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/voice/evaluate",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "voice",
+                                "evaluate"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "200 OK",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"accuracy\": 0.87,\n  \"transcription\": \"Я помню чудное мгновенье передо мной явилась ты как мимолетное виденье как гений чистой красоты\",\n  \"line_results\": [\n    { \"line\": 1, \"expected\": \"Я помню чудное мгновенье:\", \"match\": true },\n    { \"line\": 2, \"expected\": \"Передо мной явилась ты,\", \"match\": true },\n    { \"line\": 3, \"expected\": \"Как мимолетное виденье,\", \"match\": true },\n    { \"line\": 4, \"expected\": \"Как гений чистой красоты.\", \"match\": true }\n  ]\n}"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Leaderboard",
+            "item": [
+                {
+                    "name": "Get Leaderboard",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/leaderboard",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "leaderboard"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "200 OK",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"leaderboard\": [\n    { \"rank\": 1, \"username\": \"poetry_master\", \"level\": 5, \"xp\": 1200 },\n    { \"rank\": 2, \"username\": \"verse_learner\", \"level\": 4, \"xp\": 890 },\n    { \"rank\": 3, \"username\": \"poetry_lover\", \"level\": 3, \"xp\": 475 }\n  ]\n}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

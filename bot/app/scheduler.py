@@ -50,6 +50,25 @@ async def process_daily_notifications(bot: Bot):
             streak = u.get("streak", 0)
             msg = t("push_review", lang, count=count, streak=streak)
 
+            # Append daily challenge info
+            try:
+                challenge = await api.get_today_challenge(user_id)
+                if challenge and not challenge.get("completed_at"):
+                    from app.utils import _challenge_goal_text
+                    goal = _challenge_goal_text(
+                        challenge.get("goal_type", ""),
+                        challenge.get("goal_target", 1),
+                        lang,
+                    )
+                    msg += "\n" + t(
+                        "msg_challenge_progress", lang,
+                        goal=goal,
+                        progress=challenge.get("current_progress", 0),
+                        target=challenge.get("goal_target", 1),
+                    )
+            except Exception:
+                pass
+
             try:
                 await bot.send_message(
                     user_id, msg, reply_markup=_review_keyboard(lang),
@@ -87,8 +106,8 @@ async def process_poem_of_day(bot: Bot):
         users_with_due = await api.get_all_due_reviews()
         active_tg_ids = {u["telegram_id"] for u in users_with_due}
 
-        # Get all users and find idle ones (no poems due = haven't been active)
-        all_users = await api.get_leaderboard()  # top 10 is enough for poem-of-day
+        # Get ALL users and find idle ones
+        all_users = await api.get_all_users()
         idle_users = [u for u in all_users if u.get("telegram_id") not in active_tg_ids]
 
         for u in idle_users:

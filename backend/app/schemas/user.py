@@ -29,6 +29,7 @@ class UserResponse(BaseModel):
     streak: int
     ui_language: str
     notification_time: str
+    streak_freezes_available: int = 1
     created_at: datetime
 
     model_config = {"from_attributes": True}

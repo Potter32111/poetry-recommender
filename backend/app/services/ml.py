@@ -23,6 +23,13 @@ class MLService:
             self._model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
             logger.info("Model loaded successfully.")
 
+    async def ensure_loaded(self) -> None:
+        """Pre-load the model so the first request doesn't timeout."""
+        if self._model is None:
+            logger.info("Pre-loading sentence-transformers model at startup...")
+            await asyncio.to_thread(self.load_model)
+            logger.info("Model pre-loaded successfully.")
+
     async def generate_embedding(self, text: str) -> Optional[List[float]]:
         """Generates an embedding vector for the given text."""
         try:
