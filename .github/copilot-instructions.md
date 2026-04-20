@@ -73,5 +73,4 @@ cd backend && mypy app
 - [README.md](../README.md) — Deployment, features, troubleshooting
 - [ARCHITECTURE.md](../ARCHITECTURE.md) — System design, structural rules, step-by-step guides for adding models/handlers
 - [CONTRIBUTING.md](../CONTRIBUTING.md) — Git workflow, code style, testing guidelines
-- [TASKS_AND_ASSIGNMENTS.md](../TASKS_AND_ASSIGNMENTS.md) — Implementation audit and gap analysis
 - [docs/](../docs/) — Formal architecture views, CI/CD docs, QA specs, Kanban process

@@ -43,7 +43,21 @@ build/
 _create_repo.py
 read_pdfs.py
 assignments_output.txt
+assignments_output.md
 Assignment*.pdf
+Assignment*.tex
+assignment*.tex
+*.tex
+*.pdf
+
+# Presentation (generated locally, not part of source)
+PRESENTATION.*
+
+# Internal / scratch docs (not part of public repo)
+AGENTS_PROMPTS.md
+AI_INSTRUCTIONS.md
+TASKS_AND_ASSIGNMENTS.md
+create_issues.sh
 
 # Debug/scratch files
 *_logs*.txt
@@ -60,6 +74,7 @@ background_build.py
 output.txt
 result.txt
 res.txt
+test_out.txt
 alembic_error.txt
 check.json
 jobs.json
