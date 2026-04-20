@@ -5,7 +5,7 @@ import logging
 
 from aiogram import Router, F, Bot
 from aiogram.types import Message, CallbackQuery
-from aiogram.filters import CommandStart, Command, StateFilter
+from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
@@ -1987,8 +1987,8 @@ def _next_uncompleted(current: int, stanzas: list[str], completed: set[int]) -> 
 
 
 # ─── Free-text catch-all: treat any plain text as a poem search ─────────
-@router.message(StateFilter(None), F.text)
-async def handle_freetext_search(message: Message) -> None:
+@router.message(F.text)
+async def handle_freetext_search(message: Message, state: FSMContext) -> None:
     """When user types free text outside any FSM, treat it as a mood/topic search."""
     if not message.from_user or not message.text:
         return
@@ -2005,9 +2005,15 @@ async def handle_freetext_search(message: Message) -> None:
         button_labels.add(t(key, "en"))
     if text in button_labels:
         return
+    # Clear any stale FSM state so the catch-all wins cleanly
+    try:
+        await state.clear()
+    except Exception:
+        pass
     if len(text) > 200:
         text = text[:200]
     lang = await get_user_lang(message.from_user.id)
+    logger.info(f"FREETEXT_SEARCH from {message.from_user.id}: {text!r}")
     wait_msg = await message.answer(t("msg_analyzing", lang))
     try:
         await _send_recommendation(message, message.from_user.id, mood=text)
